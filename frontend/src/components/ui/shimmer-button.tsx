@@ -1,8 +1,9 @@
-import React, { CSSProperties, ComponentPropsWithoutRef } from "react";
+import React, { CSSProperties } from "react";
 
 import { cn } from "@/lib/utils";
 
-export interface ShimmerButtonProps extends ComponentPropsWithoutRef<"button"> {
+export interface ShimmerButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   shimmerColor?: string;
   shimmerSize?: string;
   borderRadius?: string;
@@ -12,10 +13,7 @@ export interface ShimmerButtonProps extends ComponentPropsWithoutRef<"button"> {
   children?: React.ReactNode;
 }
 
-export const ShimmerButton = React.forwardRef<
-  HTMLButtonElement,
-  ShimmerButtonProps
->(
+const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
   (
     {
       shimmerColor = "#ffffff",
@@ -59,7 +57,7 @@ export const ShimmerButton = React.forwardRef<
           {/* spark */}
           <div className="absolute inset-0 h-[100cqh] animate-shimmer-slide [aspect-ratio:1] [border-radius:0] [mask:none]">
             {/* spark before */}
-            <div className="absolute -inset-full w-auto rotate-0 animate-spin-around [background:conic-gradient(from_calc(270deg-(var(--spread)*0.5)),transparent_0,var(--shimmer-color)_var(--spread),transparent_var(--spread))] [translate:0_0]" />
+            <div className="animate-spin-around absolute -inset-full w-auto rotate-0 [background:conic-gradient(from_calc(270deg-(var(--spread)*0.5)),transparent_0,var(--shimmer-color)_var(--spread),transparent_var(--spread))] [translate:0_0]" />
           </div>
         </div>
         {children}
@@ -69,7 +67,7 @@ export const ShimmerButton = React.forwardRef<
           className={cn(
             "insert-0 absolute size-full",
 
-            "rounded-2xl px-4 py-1.5 text-sm font-medium shadow-[inset_0_-8px_10px_#ffffff1f]",
+            "rounded-xl px-4 py-1.5 text-sm font-medium shadow-[inset_0_-8px_10px_#ffffff1f]",
 
             // transition
             "transform-gpu transition-all duration-300 ease-in-out",
@@ -94,3 +92,5 @@ export const ShimmerButton = React.forwardRef<
 );
 
 ShimmerButton.displayName = "ShimmerButton";
+
+export default ShimmerButton;

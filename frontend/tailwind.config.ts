@@ -9,6 +9,14 @@ export default {
   ],
   theme: {
   	extend: {
+  		letterSpacing: {
+  			tighter: '-0.05em',
+  			tight: '-0.025em',
+  			normal: '0',
+  			wide: '0.025em',
+  			wider: '0.05em',
+  			widest: '0.1em',
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -80,7 +88,10 @@ export default {
   					transform: 'translateZ(0) rotate(360deg)'
   				}
   			}
-  		}
+  		},
+  		fontFamily: {
+  			sans: ['var(--font-manrope)', 'Arial', 'sans-serif'],
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],

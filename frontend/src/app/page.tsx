@@ -1,23 +1,35 @@
 import Image from "next/image";
-import { ShimmerButton } from "@/components/magicui/shimmer-button";
+import ShimmerButton from "@/components/ui/shimmer-button";
+import ShinyButton from "@/components/ui/shiny-button";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-black text-white">
       <div className="w-full max-w-3xl flex flex-col items-center gap-4">
-        {/* Bolt Logo */}
-        <ShimmerButton
-          className="mb-16"
-          shimmerColor="#3498db"
-          background="transparent"
-        >
-          Your team&apos;s personal OS
-        </ShimmerButton>
+        <div className="min-h-[80vh] space-y-8 items-center flex flex-col justify-center">
+          <div className="space-y-3 items-center flex flex-col">
+            <ShimmerButton
+              className="w-fit"
+              shimmerColor="#3498db"
+              background="black"
+            >
+              Your team&apos; personal OS
+            </ShimmerButton>
+            <h1 className="text-6xl font-bold text-center max-w-4xl leading-tight">
+              Simplify your workflows using AI
+            </h1>
+          </div>
 
-        {/* Main Heading */}
-        <h1 className="text-5xl font-bold text-center mb-4">
-          Automate collaborative workflows in seconds.
-        </h1>
+          <p className="text-gray-400 text-center mb-8 text-lg font-medium">
+            Flow Pilot lets you hand off tasks to AI Agents, so you can concentrate on what really matters.
+          </p>
+
+          <ShinyButton
+            text="Get started"
+            className="items-center space-x-2.5 shadow-[0_13px_22px_rgba(0,0,0,0.10)] drop-shadow-[0_-9px_22px_rgba(255,255,255,0.87)]"
+            href="/dashboard"
+          />
+        </div>
 
         {/* Subheading */}
         <p className="text-gray-400 text-center mb-8">
@@ -25,9 +37,9 @@ export default function Home() {
         </p>
 
         {/* Workflow Cards */}
-        <div className="w-full flex flex-col gap-8">
+        <div className="w-full flex flex-row gap-8">
           {/* Communication Card */}
-          <div className="w-full bg-gradient-to-br from-[#111111] to-[#1a1a1a] rounded-2xl p-8 overflow-hidden relative">
+          <div className="w-1/2 bg-gradient-to-br from-[#111111] to-[#1a1a1a] rounded-2xl p-8 overflow-hidden relative">
             <div className="mb-2 inline-block">
               <span className="bg-[#222222] px-4 py-1 rounded-full text-sm text-gray-300">
                 COMMUNICATION
@@ -51,7 +63,7 @@ export default function Home() {
           </div>
 
           {/* Task Management Card */}
-          <div className="w-full bg-gradient-to-br from-[#111111] to-[#1a1a1a] rounded-2xl p-8 overflow-hidden relative">
+          <div className="w-1/2 bg-gradient-to-br from-[#111111] to-[#1a1a1a] rounded-2xl p-8 overflow-hidden relative">
             <div className="mb-2 inline-block">
               <span className="bg-[#222222] px-4 py-1 rounded-full text-sm text-gray-300">
                 TASK MANAGEMENT
