@@ -110,7 +110,7 @@ export default function Home() {
               shimmerColor="#3498db"
               background="black"
             >
-              Your team&apos; personal OS
+              Your team&apos;s personal OS
             </ShimmerButton>
             <h1 className="text-6xl font-bold text-center max-w-4xl leading-tight">
               Tedious workflows, {' '}

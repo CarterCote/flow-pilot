@@ -1,7 +1,210 @@
 'use client';
 
 import { useState } from 'react';
-import { Home, Zap, Link2, FileText, MessageSquare, LifeBuoy } from 'lucide-react';
+import Link from "next/link";
+import Image from "next/image";
+import { Plus, Zap, Link2, FileText, MessageSquare, LifeBuoy, X } from 'lucide-react';
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input";
+
+// Extract NewAgentDialog component
+const NewAgentDialog = ({ trigger }: { trigger: React.ReactNode }) => {
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+
+  const CustomAgentForm = () => (
+    <>
+      <div className="text-center space-y-2 mb-8">
+        <h2 className="text-xl font-semibold">Create your own agent</h2>
+        <p className="text-gray-500">
+          Create and train your agent to automate your work across 7,000+ apps.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="text-sm font-medium">Name</label>
+          <div className="flex items-center gap-2 mt-1 p-2 border rounded-md">
+            <Image src="/agentIcon.png" alt="Agent" width={20} height={20} />
+            <Input 
+              defaultValue="Untitled Agent"
+              className="flex-1 bg-transparent border-none focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <Button className="w-full" variant="default">
+          Start from scratch
+        </Button>
+      </div>
+    </>
+  );
+
+  const TemplateView = () => (
+    <>
+      <div className="flex items-center gap-2 mb-4">
+        <div className="bg-[#10B981] rounded p-1">
+          <Image src="/agent-icon.png" alt="Agent" width={24} height={24} />
+        </div>
+        <h2 className="text-xl font-semibold">Support Email Agent</h2>
+        <div className="flex items-center gap-1 text-gray-500">
+          <span>•</span>
+          <span>Zapier</span>
+        </div>
+      </div>
+
+      <p className="text-lg mb-8">
+        Get AI to draft customer replies using your knowledge base.
+      </p>
+
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Behaviors</h3>
+          <p className="text-gray-500 mb-4">Workflows this agent will automate.</p>
+          
+          <div className="border rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <h4 className="text-lg">Customer Question Auto-Reply Workflow</h4>
+              <Image src="/gmailAgent.png" alt="Gmail" width={20} height={20} />
+            </div>
+            <p className="mb-4">
+              When I get a new email, look at the contents and determine if it is a question 
+              from a customer. If it's a customer question, look up the answer in [use "Find data" 
+              to add a data source here]. If you find an answer to their question there,
+            </p>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              <Image src="/gmailAgent.png" alt="Gmail" width={20} height={20} />
+              <span>Gmail: Create Draft Reply</span>
+            </div>
+            <p>
+              to the customer in a direct, courteous tone with the correct answer. Please be succinct.
+            </p>
+            <p className="mt-4 text-gray-500">
+              Important: Do not attempt to answer the question if you do not see a good answer in the attached data source. Do not make up answers.
+            </p>
+          </div>
+        </div>
+
+        <Button className="w-full" variant="default">
+          Use this template
+        </Button>
+      </div>
+    </>
+  );
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        {trigger}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[900px] p-0">
+        <div className="flex gap-6 h-[500px]">
+          {/* Left side - Templates */}
+          <div className="flex-1 space-y-4 p-6">
+            <h2 className="text-xl font-semibold mb-6">New agent</h2>
+            <div className="bg-[#f7f7f7] space-y-4 rounded-2xl p-4 border border-slate-200">
+            
+
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Start from scratch</h3>
+                <div className="mt-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between"
+                    onClick={() => setSelectedTemplate('custom')}
+                  >
+                    Create a custom agent
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Use a template</h3>
+                <div className="space-y-2 mt-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between"
+                    onClick={() => setSelectedTemplate('support')}
+                  >
+                    Support Email Agent
+                    <div className="flex gap-1">
+                      <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
+                        <Image src="/gmailAgent.png" alt="Gmail" width={20} height={20} />
+                      </div>
+                      <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
+                        <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
+                      </div>
+                    </div>
+                  </Button>
+                  <Button variant="outline" className="w-full justify-between">
+                    Task Management Agent
+                    <div className="flex gap-1">
+                      <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
+                        <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
+                      </div>
+                      <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
+                        <Image src="/linear.png" alt="Linear" width={20} height={20} />
+                      </div>
+                    </div>
+                  </Button>
+                  <Button variant="outline" className="w-full justify-between">
+                    Travel Booking Assistant
+                    <div className="flex gap-1">
+                      <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
+                        <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
+                      </div>
+                      <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
+                        <Image src="/phoneAgent.png" alt="Phone" width={20} height={20} />
+                      </div>
+                    </div>
+                  </Button>
+                  <Button variant="outline" className="w-full justify-between">
+                    Presentation Creator
+                    <div className="flex gap-1">
+                      <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
+                        <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
+                      </div>
+                      <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
+                        <Image src="/slidesAgent.png" alt="Slides" width={20} height={20} />
+                      </div>
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side - Dynamic content */}
+          <div className="flex-[1.3] border-l border-gray-200 flex flex-col px-32">
+            {/* Sticky close button */}
+            <div className="sticky top-0 bg-white p-6 flex justify-end">
+              <DialogClose className="rounded-full p-2 hover:bg-gray-100">
+                <X className="h-4 w-4" />
+              </DialogClose>
+            </div>
+            
+            {/* Scrollable content */}
+            <div className="px-6 overflow-y-auto flex-1">
+              {selectedTemplate === 'custom' ? <CustomAgentForm /> : 
+               selectedTemplate === 'support' ? <TemplateView /> : 
+               <CustomAgentForm />}
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 export default function Dashboard() {
   const [sidebarWidth, setSidebarWidth] = useState(240);
@@ -42,146 +245,57 @@ export default function Dashboard() {
         {/* Logo area */}
         <div className="p-4 border-b border-gray-800">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white rounded"></div>
-            <span className="font-medium">Cognosys</span>
+            <Link href="/">
+              <Image 
+                src="/logo.png" 
+                alt="Logo" 
+                width={165} 
+                height={30}
+                className="object-contain"
+              />
+            </Link>
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation - updated */}
         <nav className="p-4 space-y-2">
-          <button className="w-full px-4 py-2 rounded flex items-center gap-3 bg-[#2A2A2A] text-white">
-            <Home size={20} />
-            Home
-          </button>
-          <button className="w-full px-4 py-2 rounded flex items-center gap-3 text-gray-400 hover:bg-[#2A2A2A]">
+          <NewAgentDialog 
+            trigger={
+              <Button className="w-full justify-start gap-3 bg-white text-black">
+                <Plus size={20} />
+                Add agent
+              </Button>
+            }
+          />
+          <Button variant="ghost" className="w-full justify-start gap-3 text-gray-400 hover:bg-[#2A2A2A]">
             <Zap size={20} />
-            Automations
-          </button>
-          <button className="w-full px-4 py-2 rounded flex items-center gap-3 text-gray-400 hover:bg-[#2A2A2A]">
+            Templates
+          </Button>
+          <Button variant="ghost" className="w-full justify-start gap-3 text-gray-400 hover:bg-[#2A2A2A]">
             <Link2 size={20} />
             Integrations
-          </button>
-          <button className="w-full px-4 py-2 rounded flex items-center gap-3 text-gray-400 hover:bg-[#2A2A2A]">
-            <FileText size={20} />
-            Docs
-          </button>
-          <button className="w-full px-4 py-2 rounded flex items-center gap-3 text-gray-400 hover:bg-[#2A2A2A]">
-            <MessageSquare size={20} />
-            Feedback
-          </button>
-          <button className="w-full px-4 py-2 rounded flex items-center gap-3 text-gray-400 hover:bg-[#2A2A2A]">
-            <LifeBuoy size={20} />
-            Onboarding
-          </button>
+          </Button>
         </nav>
 
         {/* Resize handle */}
         <div
-          className="absolute top-0 right-0 w-1 h-full cursor-ew-resize bg-gray-800 hover:bg-green-500"
+          className="absolute top-0 right-0 w-1 h-full cursor-ew-resize bg-gray-800 hover:bg-blue-500"
           onMouseDown={startResizing}
         />
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 p-8">
-        <h1 className="text-4xl font-medium text-green-500 mb-2">Hi Carter,</h1>
-        <h2 className="text-4xl font-medium text-green-500 mb-8">How can we help you today?</h2>
-
-        {/* Content grid */}
-        <div className="grid grid-cols-3 gap-8">
-          {/* First column */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-normal">Seamlessly perform tasks between apps directly</h3>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 p-4 bg-[#2A2A2A] rounded-lg">
-                <div className="w-8 h-8 bg-[#3A3A3A] rounded flex items-center justify-center">
-                  <img src="/zoom-logo.svg" alt="Zoom" className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <div>Zoom</div>
-                  <div className="text-gray-400 text-sm">to read meetings</div>
-                </div>
-                <button className="px-4 py-1.5 bg-green-500 text-white rounded-md text-sm">Connect</button>
-              </div>
-
-              <div className="flex items-center gap-3 p-4 bg-[#2A2A2A] rounded-lg">
-                <div className="w-8 h-8 bg-[#3A3A3A] rounded flex items-center justify-center">
-                  <img src="/linear-logo.svg" alt="Linear" className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <div>Linear</div>
-                  <div className="text-gray-400 text-sm">to read, create, and update issues</div>
-                </div>
-                <button className="px-4 py-1.5 bg-green-500 text-white rounded-md text-sm">Connect</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Second column */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-normal">Automate tasks by setting a schedule</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg">
-                <div className="flex-1">Daily email summaries and priorities</div>
-                <button className="w-8 h-8 bg-[#3A3A3A] rounded-full flex items-center justify-center text-green-500">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg">
-                <div className="flex-1">Personal daily news digest of the AI industry</div>
-                <button className="w-8 h-8 bg-[#3A3A3A] rounded-full flex items-center justify-center text-green-500">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg">
-                <div className="flex-1">Weekly Business Newsletter</div>
-                <button className="w-8 h-8 bg-[#3A3A3A] rounded-full flex items-center justify-center text-green-500">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Third column */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-normal">Conduct in-depth research on topics you may be interested in</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg">
-                <div className="flex-1">Top Electric Vehicles in North America</div>
-                <button className="w-8 h-8 bg-[#3A3A3A] rounded-full flex items-center justify-center text-green-500">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg">
-                <div className="flex-1">10-day Itinerary for Tokyo and Nearby Cities</div>
-                <button className="w-8 h-8 bg-[#3A3A3A] rounded-full flex items-center justify-center text-green-500">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg">
-                <div className="flex-1">Business Model Canvas for Nike</div>
-                <button className="w-8 h-8 bg-[#3A3A3A] rounded-full flex items-center justify-center text-green-500">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
+      {/* Main content - updated */}
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-gray-400 text-lg">You currently have no agents</p>
+          <NewAgentDialog 
+            trigger={
+              <Button className="gap-2">
+                <Plus className="h-5 w-5" />
+                New agent
+              </Button>
+            }
+          />
         </div>
       </div>
     </div>
