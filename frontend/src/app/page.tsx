@@ -1,52 +1,77 @@
 import Image from "next/image";
+import { ShimmerButton } from "@/components/magicui/shimmer-button";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-black text-white">
       <div className="w-full max-w-3xl flex flex-col items-center gap-4">
         {/* Bolt Logo */}
-        <Image
-          src="/bolt-logo.svg"
-          alt="Bolt logo"
-          width={80}
-          height={32}
+        <ShimmerButton
           className="mb-16"
-        />
+          shimmerColor="#3498db"
+          background="transparent"
+        >
+          Your team&apos;s personal OS
+        </ShimmerButton>
 
         {/* Main Heading */}
         <h1 className="text-5xl font-bold text-center mb-4">
-          What do you want to build?
+          Automate collaborative workflows in seconds.
         </h1>
 
         {/* Subheading */}
         <p className="text-gray-400 text-center mb-8">
-          Prompt, run, edit, and deploy full-stack <span className="text-white">web</span> and <span className="text-white">mobile</span> apps.
+          Transform meeting notes into actionable tasks in <span className="text-white">seconds</span>, not hours.
         </p>
 
-        {/* Text Input Area */}
-        <div className="w-full bg-[#111111] rounded-lg p-4 min-h-[120px]">
-          <textarea 
-            placeholder="How can Bolt help you today?"
-            className="w-full bg-transparent border-none outline-none resize-none text-gray-300"
-            rows={3}
-          />
-          <div className="flex gap-2 mt-2">
-            <button className="p-2 hover:bg-[#222222] rounded-md transition-colors">
-              <Image
-                src="/link-icon.svg"
-                alt="Link"
-                width={20}
-                height={20}
-              />
-            </button>
-            <button className="p-2 hover:bg-[#222222] rounded-md transition-colors">
-              <Image
-                src="/magic-icon.svg"
-                alt="Magic wand"
-                width={20}
-                height={20}
-              />
-            </button>
+        {/* Workflow Cards */}
+        <div className="w-full flex flex-col gap-8">
+          {/* Communication Card */}
+          <div className="w-full bg-gradient-to-br from-[#111111] to-[#1a1a1a] rounded-2xl p-8 overflow-hidden relative">
+            <div className="mb-2 inline-block">
+              <span className="bg-[#222222] px-4 py-1 rounded-full text-sm text-gray-300">
+                COMMUNICATION
+              </span>
+            </div>
+            
+            <h2 className="text-3xl font-bold mb-8">
+              Meeting Notes to<br />
+              Email Automation
+            </h2>
+
+            <div className="space-y-2">
+              <h3 className="text-gray-400 uppercase text-sm font-medium mb-4">WORKFLOWS</h3>
+              <button className="w-full bg-[#111111] hover:bg-[#1a1a1a] rounded-lg p-4 text-left text-gray-300 transition-colors">
+                Meeting Notes to Action Items
+              </button>
+              <button className="w-full bg-[#111111] hover:bg-[#1a1a1a] rounded-lg p-4 text-left text-gray-300 transition-colors">
+                Action Items to Email
+              </button>
+            </div>
+          </div>
+
+          {/* Task Management Card */}
+          <div className="w-full bg-gradient-to-br from-[#111111] to-[#1a1a1a] rounded-2xl p-8 overflow-hidden relative">
+            <div className="mb-2 inline-block">
+              <span className="bg-[#222222] px-4 py-1 rounded-full text-sm text-gray-300">
+                TASK MANAGEMENT
+              </span>
+            </div>
+            
+            <h2 className="text-3xl font-bold mb-8">
+              Meeting Notes to<br />
+              Linear Integration
+            </h2>
+
+            <div className="space-y-2">
+              <h3 className="text-gray-400 uppercase text-sm font-medium mb-4">WORKFLOWS</h3>
+              <button className="w-full bg-[#111111] hover:bg-[#1a1a1a] rounded-lg p-4 text-left text-gray-300 transition-colors">
+                Meeting Notes to Action Items
+              </button>
+              <button className="w-full bg-[#111111] hover:bg-[#1a1a1a] rounded-lg p-4 text-left text-gray-300 transition-colors">
+                Action Items to Linear Tickets
+              </button>
+            </div>
           </div>
         </div>
       </div>
