@@ -7,7 +7,8 @@ import { OrbitingCircles } from "@/components/ui/orbiting-circles";
 import { Icons } from "@/components/icons";
 import { LineShadowText } from "@/components/magicui/line-shadow-text";
 import { FloatingNav } from "@/components/ui/floating-navbar";
-import { IconHome, IconMessage, IconUser } from "@tabler/icons-react";
+import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
+import { cn } from "@/lib/utils";
 
 const workflowCards = [
   {
@@ -66,6 +67,18 @@ export default function Home() {
       <div className="w-full max-w-7xl flex flex-col items-center gap-4">
         {/* Hero */}
         <div className="min-h-[100vh] space-y-12 items-center flex flex-col justify-center relative max-w-2xl">
+          {/* Move AnimatedGridPattern inside hero section */}
+          <AnimatedGridPattern
+            numSquares={30}
+            maxOpacity={0.1}
+            duration={3}
+            repeatDelay={1}
+            className={cn(
+              "[mask-image:radial-gradient(600px_circle_at_center,white,transparent)]",
+              "absolute inset-0"
+            )}
+          />
+          
           {/* Add OrbitingCircles behind other elements */}
           <div className="absolute inset-0 z-0 flex items-center justify-center">
             <div className="relative size-[400px] opacity-60">
