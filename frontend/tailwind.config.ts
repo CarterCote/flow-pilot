@@ -15,7 +15,7 @@ export default {
   			normal: '0',
   			wide: '0.025em',
   			wider: '0.05em',
-  			widest: '0.1em',
+  			widest: '0.1em'
   		},
   		colors: {
   			background: 'hsl(var(--background))',
@@ -66,7 +66,8 @@ export default {
   		},
   		animation: {
   			'shimmer-slide': 'shimmer-slide var(--speed) ease-in-out infinite alternate',
-  			'spin-around': 'spin-around calc(var(--speed) * 2) infinite linear'
+  			'spin-around': 'spin-around calc(var(--speed) * 2) infinite linear',
+  			orbit: 'orbit calc(var(--duration)*1s) linear infinite'
   		},
   		keyframes: {
   			'shimmer-slide': {
@@ -87,11 +88,23 @@ export default {
   				'100%': {
   					transform: 'translateZ(0) rotate(360deg)'
   				}
+  			},
+  			orbit: {
+  				'0%': {
+  					transform: 'rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle) * -1deg))'
+  				},
+  				'100%': {
+  					transform: 'rotate(calc(var(--angle) * 1deg + 360deg)) translateY(calc(var(--radius) * 1px)) rotate(calc((var(--angle) * -1deg) - 360deg))'
+  				}
   			}
   		},
   		fontFamily: {
-  			sans: ['var(--font-manrope)', 'Arial', 'sans-serif'],
-  		},
+  			sans: [
+  				'var(--font-manrope)',
+  				'Arial',
+  				'sans-serif'
+  			]
+  		}
   	}
   },
   plugins: [require("tailwindcss-animate")],

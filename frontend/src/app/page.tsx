@@ -1,11 +1,13 @@
 import Image from "next/image";
 import ShimmerButton from "@/components/ui/shimmer-button";
 import ShinyButton from "@/components/ui/shiny-button";
+import OrbitingCircles from "@/components/ui/shiny-button";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-black text-white">
       <div className="w-full max-w-3xl flex flex-col items-center gap-4">
+        {/* Hero */}
         <div className="min-h-[80vh] space-y-8 items-center flex flex-col justify-center">
           <div className="space-y-3 items-center flex flex-col">
             <ShimmerButton
