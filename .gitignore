@@ -1,0 +1,32 @@
+# Frontend dependencies
+frontend/node_modules/
+
+# Logs
+frontend/logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Next.js build output
+frontend/.next/
+frontend/out/
+
+# Production build
+frontend/build
+
+# Coverage directory
+frontend/coverage/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo 
