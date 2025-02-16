@@ -484,9 +484,10 @@ type TaskMetadata = {
   transcript: string;
 };
 
-// Update the Task type to include an id and status
+// Modify the Task type to include rowNumber
 type Task = {
   id: string;
+  rowNumber: number;
   task: string;
   tool: string;
   metadata: TaskMetadata;
@@ -499,6 +500,51 @@ export default function Dashboard() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [activeTab, setActiveTab] = useState("chat");
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        console.log('Fetching tasks...');
+        const response = await fetch('https://api.sheety.co/9f08a4ccc751b7ebebc8bc4a0a91b5f4/zoomTranscripts/sheet3');
+        const json = await response.json();
+        
+        console.log('Raw API response:', json);
+        console.log('Sheet3 data:', json.sheet3);
+        
+        const mappedTasks = json.sheet3.map((row: any, index: number) => ({
+          id: crypto.randomUUID(),
+          rowNumber: index + 2,
+          task: row.task,
+          tool: row.tool,
+          metadata: {
+            transcript: row.transcript
+          },
+          status: row.approve ? 'accepted' : 'pending'
+        }));
+        
+        // Reverse the array to show latest rows first
+        const reversedTasks = mappedTasks.reverse();
+        
+        console.log('All mapped tasks (reversed):', reversedTasks);
+        setTasks(reversedTasks);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error('Failed to fetch tasks:', error);
+          console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          });
+        } else {
+          console.error('An unknown error occurred:', error);
+        }
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -585,6 +631,55 @@ export default function Dashboard() {
         </div>
       </div>
     );
+  };
+
+  const updateTaskApproval = async (taskId: string, approve: boolean) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    try {
+      const url = `https://api.sheety.co/9f08a4ccc751b7ebebc8bc4a0a91b5f4/zoomTranscripts/sheet3/${task.rowNumber}`;
+      const body = {
+        sheet3: {
+          approve: approve
+        }
+      };
+
+      console.log('Updating task:', {
+        taskId,
+        rowNumber: task.rowNumber,
+        url,
+        body
+      });
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      const responseData = await response.json().catch(e => console.log('Failed to parse response:', e));
+      console.log('Response data:', responseData);
+
+      if (!response.ok) {
+        throw new Error('Failed to update task');
+      }
+
+      setTasks(tasks.map(t => 
+        t.id === taskId 
+          ? { ...t, status: approve ? 'accepted' : 'rejected' }
+          : t
+      ));
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Failed to update task:', error);
+      }
+    }
   };
 
   return (
@@ -716,16 +811,8 @@ export default function Dashboard() {
                         <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
                         <div>
                           <div className="text-zinc-400">Untitled meeting</div>
-                          <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
+                          <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
                         </div>
-                      </div>
-                    </button>
-                    <button className="w-full">
-                      <div className="flex items-center gap-2 p-2 bg-zinc-900 rounded-xl hover:bg-zinc-800 transition-all duration-500">
-                        <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
-                        <div>
-                          <div className="text-zinc-400">Untitled meeting</div>
-                          <span className="text-sm text-zinc-500">Today at {currentTime}</span>                        </div>
                       </div>
                     </button>
                   </div>
@@ -734,20 +821,22 @@ export default function Dashboard() {
                 {/* Chat interface */}
                 <div className="flex-1 flex flex-col h-full overflow-hidden">
                   <div className="h-[calc(100vh-155px)] p-4 overflow-y-auto">
-                    {visibleTasks.map((task) => (
+                    {tasks.map((task) => (
                       <div key={task.id} className="flex items-start gap-4 mt-4 p-4 bg-zinc-800 rounded-xl">
-
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium">{selectedAgent.name}</span>
+                            <span className="font-medium">{task.task}</span>
                             <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
                           </div>
                           <div className="text-sm text-zinc-400">
                             From transcript:
-                            <div className="mt-2 p-3 bg-zinc-900 rounded-lg">
+                            <div className="mt-2 p-3 bg-zinc-900 rounded-lg min-h-16">
                               <div className="relative">
-                                <div className={`line-clamp-4 ${expanded === task.id ? 'line-clamp-none' : ''} pr-8`}>
-                                  {task.metadata.transcript}
+                                <div className={`line-clamp-4 ${expanded === task.id ? 'line-clamp-none' : ''} pr-8 whitespace-pre-line`}>
+                                  {task.metadata.transcript
+                                    .replace(/^\{"transcript":\s*"|"\}$/g, '')  // Remove JSON wrapper
+                                    .replace(/\\n/g, '\n')  // Convert \n to newlines
+                                    .replace(/\\"/g, "'")} 
                                 </div>
                                 <Button 
                                   variant="ghost" 
@@ -773,13 +862,7 @@ export default function Dashboard() {
                             className={`shrink-0 bg-green-500/10 text-green-400 
                               hover:bg-green-500/20 hover:text-green-300
                               ${task.status === 'accepted' ? 'text-green-500' : ''}`}
-                            onClick={() => {
-                              setTasks(tasks.map(t => 
-                                t.id === task.id 
-                                  ? { ...t, status: 'accepted' }
-                                  : t
-                              ));
-                            }}
+                            onClick={() => updateTaskApproval(task.id, true)}
                           >
                             <Check className="h-4 w-4 mr-2" />
                             {task.status === 'accepted' ? 'Accepted' : 'Accept'}
@@ -790,13 +873,7 @@ export default function Dashboard() {
                               hover:bg-red-500/20 hover:text-red-300
                               ${task.status === 'rejected' ? 'text-red-500' : ''}
                               ${task.status === 'accepted' ? 'opacity-20' : ''}`}
-                            onClick={() => {
-                              setTasks(tasks.map(t => 
-                                t.id === task.id 
-                                  ? { ...t, status: 'rejected' }
-                                  : t
-                              ));
-                            }}
+                            onClick={() => updateTaskApproval(task.id, false)}
                           >
                             <X className="h-4 w-4 mr-2" />
                             {task.status === 'rejected' ? 'Rejected' : 'Reject'}
