@@ -16,97 +16,218 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 
+const TEMPLATES = {
+  'support': {
+    icon: '/gmailAgent.png',
+    title: 'Support Email Agent',
+    integration: 'Zapier',
+    description: 'Get AI to draft customer replies using your knowledge base.',
+    workflowTitle: 'Customer Question Auto-Reply Workflow',
+    workflowDescription: `When I get a new email, look at the contents and determine if it is a question 
+      from a customer. If it's a customer question, look up the answer in [use "Find data" 
+      to add a data source here]. If you find an answer to their question there,`,
+    actionIcon: '/gmailAgent.png',
+    actionText: 'Gmail: Create Draft Reply',
+    actionDescription: `to the customer in a direct, courteous tone with the correct answer. Please be succinct.`,
+  },
+  'task': {
+    icon: '/linear.png',
+    title: 'Task Management Agent',
+    integration: 'Linear',
+    description: 'Automatically create and assign tasks based on conversations.',
+    workflowTitle: 'Meeting Notes to Tasks Workflow',
+    workflowDescription: `When a meeting ends in Zoom, analyze the meeting transcript and identify 
+      action items. For each action item detected, create a new task with the relevant details and context.`,
+    actionIcon: '/linear.png',
+    actionText: 'Linear: Create Task',
+    actionDescription: `with appropriate title, description, and assignee based on the meeting context.`,
+  },
+  'travel': {
+    icon: '/phoneAgent.png',
+    title: 'Travel Booking Assistant',
+    integration: 'Zoom',
+    description: 'Schedule and manage travel arrangements from meeting discussions.',
+    workflowTitle: 'Meeting Travel Planning Workflow',
+    workflowDescription: `When travel plans are discussed in a Zoom meeting, analyze the conversation 
+      to identify destination, dates, and preferences. Create a travel itinerary proposal based on 
+      the discussed requirements and company travel policies.`,
+    actionIcon: '/phoneAgent.png',
+    actionText: 'Travel: Create Booking Request',
+    actionDescription: `with flight options, hotel recommendations, and estimated costs based on the discussed preferences.`,
+  },
+  'presentation': {
+    icon: '/slidesAgent.png',
+    title: 'Presentation Creator',
+    integration: 'Google Slides',
+    description: 'Automatically generate presentation slides from meeting content.',
+    workflowTitle: 'Meeting to Slides Workflow',
+    workflowDescription: `When a meeting recording is available, analyze the transcript to identify 
+      key points, decisions, and action items. Structure the content into a logical presentation 
+      format with clear sections and highlights.`,
+    actionIcon: '/slidesAgent.png',
+    actionText: 'Slides: Create Presentation',
+    actionDescription: `with a professional layout, key talking points, and relevant data visualizations from the meeting content.`,
+  }
+};
+
 // Extract NewAgentDialog component
-const NewAgentDialog = ({ trigger }: { trigger: React.ReactNode }) => {
+const NewAgentDialog = ({ 
+  trigger, 
+  onAgentCreate 
+}: { 
+  trigger: React.ReactNode;
+  onAgentCreate: (name: string, icon: string) => void;
+}) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
-  const CustomAgentForm = () => (
-    <>
-      <div className="text-center space-y-2 mb-8">
-        <h2 className="text-xl font-semibold">Create your own agent</h2>
-        <p className="text-gray-500">
-          Create and train your agent to automate your work across 7,000+ apps.
+  const handleCreateAgent = (name: string, icon: string) => {
+    onAgentCreate(name, icon);
+    // Close the dialog here
+  };
+
+  const CustomAgentForm = () => {
+    const [agentName, setAgentName] = useState("Untitled Agent");
+    
+    return (
+      <>
+        <div className="text-center space-y-2 mb-8">
+          <h2 className="text-xl font-semibold">Create your own agent</h2>
+          <p className="text-gray-500">
+            Create and train your agent to automate your work across 7,000+ apps.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium">Name</label>
+            <div className="flex items-center gap-2 mt-1 p-2 border rounded-md">
+              <Image src="/agentIcon.png" alt="Agent" width={20} height={20} />
+              <Input 
+                value={agentName}
+                onChange={(e) => setAgentName(e.target.value)}
+                className="flex-1 bg-transparent border-none focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <Button 
+            className="w-full" 
+            variant="default"
+            onClick={() => handleCreateAgent(agentName, "/agentIcon.png")}
+          >
+            Start from scratch
+          </Button>
+        </div>
+      </>
+    );
+  };
+
+  const TemplateView = ({ templateId }: { templateId: string }) => {
+    const [showConnection, setShowConnection] = useState(false);
+    const template = TEMPLATES[templateId as keyof typeof TEMPLATES];
+    if (!template) return null;
+
+    if (showConnection) {
+      return (
+        <div className="px-4">
+          <div className="h-12 w-full"/>
+          <h2 className="text-2xl font-semibold mb-2">Let&apos;s start by connecting your apps</h2>
+          <p className="text-gray-500 text-lg mb-8">
+            Connecting your apps allows this agent to run actions and access your data.
+          </p>
+
+          <div className="bg-gray-50 rounded-lg p-4 mb-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Image src="/zoomAgent.png" alt="Zoom" width={24} height={24} />
+                <span className="text-lg">Zoom</span>
+              </div>
+              <Button variant="default" className="bg-[#4F46E5] hover:bg-[#4338CA]">
+                Connect
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4">
+            <Button variant="outline">Skip</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => handleCreateAgent(template.title, template.icon)}
+            >
+              Create
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <div className="h-12 w-full"/>
+
+        <div className="flex items-center gap-2 mb-4">
+          <div className="rounded p-1">
+            <Image src={template.icon} alt="Agent" width={24} height={24} />
+          </div>
+          <h2 className="text-xl font-semibold">{template.title}</h2>
+          <div className="flex items-center gap-1 text-gray-500">
+            <span>•</span>
+            <span>{template.integration}</span>
+          </div>
+        </div>
+
+        <p className="text-lg mb-8">
+          {template.description}
         </p>
-      </div>
 
-      <div className="space-y-4">
-        <div>
-          <label className="text-sm font-medium">Name</label>
-          <div className="flex items-center gap-2 mt-1 p-2 border rounded-md">
-            <Image src="/agentIcon.png" alt="Agent" width={20} height={20} />
-            <Input 
-              defaultValue="Untitled Agent"
-              className="flex-1 bg-transparent border-none focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <Button className="w-full" variant="default">
-          Start from scratch
-        </Button>
-      </div>
-    </>
-  );
-
-  const TemplateView = () => (
-    <>
-      <div className="flex items-center gap-2 mb-4">
-        <div className="bg-[#10B981] rounded p-1">
-          <Image src="/agent-icon.png" alt="Agent" width={24} height={24} />
-        </div>
-        <h2 className="text-xl font-semibold">Support Email Agent</h2>
-        <div className="flex items-center gap-1 text-gray-500">
-          <span>•</span>
-          <span>Zapier</span>
-        </div>
-      </div>
-
-      <p className="text-lg mb-8">
-        Get AI to draft customer replies using your knowledge base.
-      </p>
-
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Behaviors</h3>
-          <p className="text-gray-500 mb-4">Workflows this agent will automate.</p>
-          
-          <div className="border rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-lg">Customer Question Auto-Reply Workflow</h4>
-              <Image src="/gmailAgent.png" alt="Gmail" width={20} height={20} />
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Behaviors</h3>
+            <p className="text-gray-500 mb-4">Workflows this agent will automate.</p>
+            
+            <div className="border rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="text-lg">{template.workflowTitle}</h4>
+                <Image src={template.icon} alt="App" width={20} height={20} />
+              </div>
+              <p className="mb-4">
+                {template.workflowDescription}
+              </p>
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4" />
+                <Image src={template.actionIcon} alt="App" width={20} height={20} />
+                <span>{template.actionText}</span>
+              </div>
+              <p>
+                {template.actionDescription}
+              </p>
+              <p className="mt-4 text-gray-500">
+                Important: Do not attempt to answer the question if you do not see a good answer in the attached data source. Do not make up answers.
+              </p>
             </div>
-            <p className="mb-4">
-              When I get a new email, look at the contents and determine if it is a question 
-              from a customer. If it's a customer question, look up the answer in [use "Find data" 
-              to add a data source here]. If you find an answer to their question there,
-            </p>
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              <Image src="/gmailAgent.png" alt="Gmail" width={20} height={20} />
-              <span>Gmail: Create Draft Reply</span>
-            </div>
-            <p>
-              to the customer in a direct, courteous tone with the correct answer. Please be succinct.
-            </p>
-            <p className="mt-4 text-gray-500">
-              Important: Do not attempt to answer the question if you do not see a good answer in the attached data source. Do not make up answers.
-            </p>
           </div>
-        </div>
 
-        <Button className="w-full" variant="default">
-          Use this template
-        </Button>
-      </div>
-    </>
-  );
+          <Button 
+            className="w-full" 
+            variant="default"
+            onClick={() => setShowConnection(true)}
+          >
+            Use this template
+          </Button>
+
+          <div className="h-8 w-full"/>
+
+        </div>
+      </>
+    );
+  };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[900px] p-0">
+      <DialogContent className="sm:max-w-[1080px] p-0">
         <div className="flex gap-6 h-[500px]">
           {/* Left side - Templates */}
           <div className="flex-1 space-y-4 p-6">
@@ -146,7 +267,11 @@ const NewAgentDialog = ({ trigger }: { trigger: React.ReactNode }) => {
                       </div>
                     </div>
                   </Button>
-                  <Button variant="outline" className="w-full justify-between">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between"
+                    onClick={() => setSelectedTemplate('task')}
+                  >
                     Task Management Agent
                     <div className="flex gap-1">
                       <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
@@ -157,7 +282,11 @@ const NewAgentDialog = ({ trigger }: { trigger: React.ReactNode }) => {
                       </div>
                     </div>
                   </Button>
-                  <Button variant="outline" className="w-full justify-between">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between"
+                    onClick={() => setSelectedTemplate('travel')}
+                  >
                     Travel Booking Assistant
                     <div className="flex gap-1">
                       <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
@@ -168,7 +297,11 @@ const NewAgentDialog = ({ trigger }: { trigger: React.ReactNode }) => {
                       </div>
                     </div>
                   </Button>
-                  <Button variant="outline" className="w-full justify-between">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between"
+                    onClick={() => setSelectedTemplate('presentation')}
+                  >
                     Presentation Creator
                     <div className="flex gap-1">
                       <div className="bg-white rounded-[6px] p-[2px] border border-slate-200">
@@ -185,18 +318,21 @@ const NewAgentDialog = ({ trigger }: { trigger: React.ReactNode }) => {
           </div>
 
           {/* Right side - Dynamic content */}
-          <div className="flex-[1.3] border-l border-gray-200 flex flex-col px-32">
-            {/* Sticky close button */}
-            <div className="sticky top-0 bg-white p-6 flex justify-end">
-              <DialogClose className="rounded-full p-2 hover:bg-gray-100">
-                <X className="h-4 w-4" />
-              </DialogClose>
-            </div>
-            
-            {/* Scrollable content */}
-            <div className="px-6 overflow-y-auto flex-1">
+          <div className="flex-[1.3] border-l border-gray-200 h-[500px] relative">
+            {/* Scrollable content container */}
+            <div className="px-12 overflow-y-auto h-full">
+              {/* Close button positioned absolutely */}
+              <div className="absolute top-6 right-6">
+                <DialogClose className="rounded-full p-2 hover:bg-gray-100">
+                  <X className="h-4 w-4" />
+                </DialogClose>
+              </div>
+              
               {selectedTemplate === 'custom' ? <CustomAgentForm /> : 
-               selectedTemplate === 'support' ? <TemplateView /> : 
+               selectedTemplate === 'support' ? <TemplateView templateId='support' /> : 
+               selectedTemplate === 'task' ? <TemplateView templateId='task' /> : 
+               selectedTemplate === 'travel' ? <TemplateView templateId='travel' /> : 
+               selectedTemplate === 'presentation' ? <TemplateView templateId='presentation' /> : 
                <CustomAgentForm />}
             </div>
           </div>
@@ -206,9 +342,17 @@ const NewAgentDialog = ({ trigger }: { trigger: React.ReactNode }) => {
   );
 };
 
+// Add this type near the top of the file
+type Agent = {
+  id: string;
+  name: string;
+  icon: string;
+};
+
 export default function Dashboard() {
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const [isDragging, setIsDragging] = useState(false);
+  const [agents, setAgents] = useState<Agent[]>([]);
 
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -233,6 +377,15 @@ export default function Dashboard() {
     document.removeEventListener('mouseup', stopResizing);
     // Restore text selection
     document.body.style.userSelect = '';
+  };
+
+  const handleAgentCreation = (name: string, icon: string) => {
+    const newAgent = {
+      id: crypto.randomUUID(),
+      name,
+      icon,
+    };
+    setAgents(prev => [...prev, newAgent]);
   };
 
   return (
@@ -266,7 +419,18 @@ export default function Dashboard() {
                 Add agent
               </Button>
             }
+            onAgentCreate={handleAgentCreation}
           />
+          {agents.map(agent => (
+            <Button
+              key={agent.id}
+              variant="ghost"
+              className="w-full justify-start gap-3 text-gray-400 hover:bg-[#2A2A2A]"
+            >
+              <Image src={agent.icon} alt={agent.name} width={20} height={20} />
+              {agent.name}
+            </Button>
+          ))}
           <Button variant="ghost" className="w-full justify-start gap-3 text-gray-400 hover:bg-[#2A2A2A]">
             <Zap size={20} />
             Templates
