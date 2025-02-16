@@ -482,9 +482,10 @@ type TaskMetadata = {
   transcript: string;
 };
 
-// Update the Task type to include an id and status
+// Modify the Task type to include rowNumber
 type Task = {
   id: string;
+  rowNumber: number;
   task: string;
   tool: string;
   metadata: TaskMetadata;
@@ -497,41 +498,51 @@ export default function Dashboard() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [activeTab, setActiveTab] = useState("chat");
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  // Replace the static tasks array with state
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      task: "Discuss with team to finalize configuration details for the local model and its transcription capabilities",
-      tool: "notion",
-      metadata: {
-        transcript: "[8:57:58 PM] stop and then starts recording\n[8:58:04 PM]  right and you\"re saying that it doesn\"t make sense because we don\"t want it to record as soon as you start start the meeting\n[8:58:08 PM]  I care\n[8:58:13 PM]  I\"m thinking about how to replace it\n[8:58:28 PM]  cuz we don\"t need to host this on on a URL this is not supposed to be hosted this is a zoom application\n[8:58:34 PM]  and then we cannot confuse about his dad\n[8:58:43 PM]  don\"t you want to have like some sort of like trigger to start these in a meeting either through Blaine or either runtime yourself\n[8:58:51 PM]  I mean when you start a meeting you\"re probably going to leave for the meeting now and as soon as you join everything will start\n[8:58:55 PM]  well I\"m so confused\n[8:59:03 PM]  no I mean that\"s that\"s like something that should be done\n[8:59:10 PM]  like what promise you to give you the idea of getting another endpoint\n[8:59:25 PM] ? cuz\n[8:59:32 PM]  even if your ass is zoom guy the Zumba I will tell you that there is no way for you to like actually post\n[8:59:38 PM]  this online cuz it\"s a you know this is a local model\n[8:59:47 PM]  serving your transcriptions right yeah so if you do put it online then there will be no way for them to actually start transcribing us as well as it is right now\n[8:59:55 PM]  yeah but I don\"t know I still don\"t follow\n[9:00:10 PM]  I do I do have a buck here though\n"
-      },
-      status: 'pending'
-    },
-    {
-      id: '2',
-      task: "Set up local hosting for the meeting on port 9202",
-      tool: "notion",
-      metadata: {
-        transcript: "[9:05:15 PM] looks nothing like Zoom right\n[9:05:20 PM]  this also means that you\"re not no one else is able to join this meeting as well\n[9:05:23 PM]  it\"s just one person it\"s a one way\n[9:05:29 PM]  so yeah this is like the only way that we can host the zoo\n[9:05:50 PM]  no no it\"s bro ignore that ignore that\n[9:06:00 PM]  like that that\"s like for the action items but I was like wanting to like join the meeting from the phone app and then from there to combine like summarize the meeting\n[9:06:08 PM]  you can do that what you can do is you run this locally on your thing and then you just prompt local hosting on 9202\n[9:06:10 PM]  yeah\n[9:06:12 PM]  I\"ll get that set up for you afterwards\n[9:06:18 PM]  okay this is the problem do you see this\n"
-      },
-      status: 'pending'
-    },
-    {
-      id: '3',
-      task: "Set up local hosting on port 9202 for the meeting application",
-      tool: "notion",
-      metadata: {
-        transcript: "[9:05:15 PM] looks nothing like Zoom right\n[9:05:20 PM]  this also means that you\"re not no one else is able to join this meeting as well\n[9:05:23 PM]  it\"s just one person it\"s a one way\n[9:05:29 PM]  so yeah this is like the only way that we can host the zoo\n[9:05:50 PM]  no no it\"s bro ignore that ignore that\n[9:06:00 PM]  like that that\"s like for the action items but I was like wanting to like join the meeting from the phone app and then from there to combine like summarize the meeting\n[9:06:08 PM]  you can do that what you can do is you run this locally on your thing and then you just prompt local hosting on 9202\n[9:06:10 PM]  yeah\n[9:06:12 PM]  I\"ll get that set up for you afterwards\n[9:06:18 PM]  okay this is the problem do you see this\n"
-      },
-      status: 'pending'
-    }
-  ]);
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        console.log('Fetching tasks...');
+        const response = await fetch('https://api.sheety.co/9f08a4ccc751b7ebebc8bc4a0a91b5f4/zoomTranscripts/sheet3');
+        const json = await response.json();
+        
+        console.log('Raw API response:', json);
+        console.log('Sheet3 data:', json.sheet3);
+        
+        const mappedTasks = json.sheet3.map((row: any, index: number) => ({
+          id: crypto.randomUUID(),
+          rowNumber: index + 2,
+          task: row.task,
+          tool: row.tool,
+          metadata: {
+            transcript: row.transcript
+          },
+          status: row.approve ? 'accepted' : 'pending'
+        }));
+        
+        // Reverse the array to show latest rows first
+        const reversedTasks = mappedTasks.reverse();
+        
+        console.log('All mapped tasks (reversed):', reversedTasks);
+        setTasks(reversedTasks);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error('Failed to fetch tasks:', error);
+          console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          });
+        } else {
+          console.error('An unknown error occurred:', error);
+        }
+      }
+    };
 
-  // Filter out rejected tasks and show all others
-  const visibleTasks = tasks.filter(task => task.status !== 'rejected');
+    fetchTasks();
+  }, []);
 
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -618,6 +629,55 @@ export default function Dashboard() {
         </div>
       </div>
     );
+  };
+
+  const updateTaskApproval = async (taskId: string, approve: boolean) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    try {
+      const url = `https://api.sheety.co/9f08a4ccc751b7ebebc8bc4a0a91b5f4/zoomTranscripts/sheet3/${task.rowNumber}`;
+      const body = {
+        sheet3: {
+          approve: approve
+        }
+      };
+
+      console.log('Updating task:', {
+        taskId,
+        rowNumber: task.rowNumber,
+        url,
+        body
+      });
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      const responseData = await response.json().catch(e => console.log('Failed to parse response:', e));
+      console.log('Response data:', responseData);
+
+      if (!response.ok) {
+        throw new Error('Failed to update task');
+      }
+
+      setTasks(tasks.map(t => 
+        t.id === taskId 
+          ? { ...t, status: approve ? 'accepted' : 'rejected' }
+          : t
+      ));
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Failed to update task:', error);
+      }
+    }
   };
 
   return (
@@ -749,7 +809,7 @@ export default function Dashboard() {
                         <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
                         <div>
                           <div className="text-zinc-400">Untitled meeting</div>
-                          <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
+                          <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
                         </div>
                       </div>
                     </button>
@@ -768,19 +828,22 @@ export default function Dashboard() {
                 {/* Chat interface */}
                 <div className="flex-1 flex flex-col h-full overflow-hidden">
                   <div className="h-[calc(100vh-155px)] p-4 overflow-y-auto">
-                    {visibleTasks.map((task) => (
+                    {tasks.map((task) => (
                       <div key={task.id} className="flex items-start gap-4 mt-4 p-4 bg-zinc-800 rounded-xl">
-
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-medium text-white">{task.task}</span>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium">{task.task}</span>
+                            <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
                           </div>
                           <div className="text-sm text-zinc-400">
                             From transcript:
-                            <div className="mt-2 p-3 bg-zinc-900 rounded-lg">
+                            <div className="mt-2 p-3 bg-zinc-900 rounded-lg min-h-16">
                               <div className="relative">
-                                <div className={`line-clamp-4 ${expanded === task.id ? 'line-clamp-none' : ''} pr-8`}>
-                                  {task.metadata.transcript}
+                                <div className={`line-clamp-4 ${expanded === task.id ? 'line-clamp-none' : ''} pr-8 whitespace-pre-line`}>
+                                  {task.metadata.transcript
+                                    .replace(/^\{"transcript":\s*"|"\}$/g, '')  // Remove JSON wrapper
+                                    .replace(/\\n/g, '\n')  // Convert \n to newlines
+                                    .replace(/\\"/g, "'")} 
                                 </div>
                                 <Button 
                                   variant="ghost" 
@@ -806,13 +869,7 @@ export default function Dashboard() {
                             className={`shrink-0 bg-green-500/10 text-green-400 
                               hover:bg-green-500/20 hover:text-green-300
                               ${task.status === 'accepted' ? 'text-green-500' : ''}`}
-                            onClick={() => {
-                              setTasks(tasks.map(t => 
-                                t.id === task.id 
-                                  ? { ...t, status: 'accepted' }
-                                  : t
-                              ));
-                            }}
+                            onClick={() => updateTaskApproval(task.id, true)}
                           >
                             <Check className="h-4 w-4 mr-2" />
                             {task.status === 'accepted' ? 'Accepted' : 'Accept'}
@@ -823,13 +880,7 @@ export default function Dashboard() {
                               hover:bg-red-500/20 hover:text-red-300
                               ${task.status === 'rejected' ? 'text-red-500' : ''}
                               ${task.status === 'accepted' ? 'opacity-20' : ''}`}
-                            onClick={() => {
-                              setTasks(tasks.map(t => 
-                                t.id === task.id 
-                                  ? { ...t, status: 'rejected' }
-                                  : t
-                              ));
-                            }}
+                            onClick={() => updateTaskApproval(task.id, false)}
                           >
                             <X className="h-4 w-4 mr-2" />
                             {task.status === 'rejected' ? 'Rejected' : 'Reject'}
