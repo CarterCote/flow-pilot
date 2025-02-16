@@ -17,6 +17,7 @@ import {
   TabsContent,
 } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
+import { setupUserTasks } from '@/lib/task-utils';
 
 const TEMPLATES = {
   'support': {
@@ -88,10 +89,11 @@ const NewAgentDialog = ({
   };
 
   const CustomAgentForm = () => {
-    const [agentName, setAgentName] = useState("Untitled Agent");
+    const [agentName, setAgentName] = useState("");
     
     return (
       <>
+        <div className="h-12 w-full"/>
         <div className="text-center space-y-2 mb-8">
           <h2 className="text-xl font-semibold">Create your own agent</h2>
           <p className="text-zinc-500">
@@ -102,19 +104,20 @@ const NewAgentDialog = ({
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium">Name</label>
-            <div className="flex items-center gap-2 mt-1 p-2 border rounded-md">
+            <div className="flex items-center gap-2 mt-1 p-2 border rounded-xl">
               <Image src="/agentIcon.png" alt="Agent" width={20} height={20} />
               <Input 
                 value={agentName}
                 onChange={(e) => setAgentName(e.target.value)}
+                placeholder="Untitled agent"
                 className="flex-1 bg-transparent border-none focus:outline-none"
               />
             </div>
           </div>
 
           <Button 
-            className="w-full" 
-            variant="default"
+            className="w-full bg-black text-white" 
+            variant="secondary"
             onClick={() => handleCreateAgent(agentName, "/agentIcon.png")}
           >
             Start from scratch
@@ -131,13 +134,30 @@ const NewAgentDialog = ({
     const template = TEMPLATES[templateId as keyof typeof TEMPLATES];
     if (!template) return null;
 
-    const handleConnect = () => {
+    const handleConnect = async () => {
       setIsConnecting(true);
-      // Simulate authentication delay
-      setTimeout(() => {
-        setIsConnecting(false);
-        setIsConnected(true);
-      }, 1500);
+          setTimeout(() => {
+            setIsConnecting(false);
+            setIsConnected(true);
+          }, 1500);
+      
+      // try {
+      //   // Choose the appropriate handler based on the template
+      //   if (templateId === 'support') {
+      //     await handleGoogleConnect();
+      //   } else if (templateId === 'task') {
+      //     await handleZoomConnect();
+      //   } else {
+      //     // Default connection simulation
+      //     setTimeout(() => {
+      //       setIsConnecting(false);
+      //       setIsConnected(true);
+      //     }, 1500);
+      //   }
+      // } catch (error) {
+      //   console.error('Failed to connect:', error);
+      //   setIsConnecting(false);
+      // }
     };
 
     if (showConnection) {
@@ -157,7 +177,7 @@ const NewAgentDialog = ({
               </div>
               <Button 
                 variant="default" 
-                className={`${isConnected ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#4F46E5] hover:bg-[#4338CA]'}`}
+                className={`text-white ${isConnected ? 'bg-blue-600 hover:bg-blue-600' : 'bg-[#4F46E5] hover:bg-[#4338CA]'}`}
                 onClick={handleConnect}
                 disabled={isConnecting || isConnected}
               >
@@ -180,12 +200,14 @@ const NewAgentDialog = ({
 
           <div className="flex justify-end gap-4">
             <Button variant="outline">Skip</Button>
-            <Button 
-              variant="outline" 
-              onClick={() => handleCreateAgent(template.title, template.icon)}
-            >
-              Create
-            </Button>
+            <DialogClose asChild>
+              <Button 
+                variant="outline" 
+                onClick={() => handleCreateAgent(template.title, template.icon)}
+              >
+                Create
+              </Button>
+            </DialogClose>
           </div>
         </div>
       );
@@ -239,7 +261,7 @@ const NewAgentDialog = ({
 
           <Button 
             className="w-full" 
-            variant="default"
+            variant="secondary"
             onClick={() => setShowConnection(true)}
           >
             Use this template
@@ -264,7 +286,6 @@ const NewAgentDialog = ({
             <h2 className="text-xl font-semibold mb-6">New agent</h2>
             <div className="bg-[#f7f7f7] space-y-4 rounded-2xl p-4 border border-zinc-200">
             
-
               <div>
                 <h3 className="text-sm font-medium text-zinc-500">Start from scratch</h3>
                 <div className="mt-2">
@@ -379,6 +400,84 @@ type Agent = {
   icon: string;
 };
 
+// Add this new component after the NewAgentDialog component
+const IntegrationsDialog = ({ trigger }: { trigger: React.ReactNode }) => {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        {trigger}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-semibold">Integrations</h2>
+          <DialogClose className="rounded-full p-2 hover:bg-zinc-100">
+            <X className="h-4 w-4" />
+          </DialogClose>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center justify-between bg-zinc-200 p-4 rounded-xl border border-zinc-300">
+            <div className="flex items-center gap-3">
+              <Image src="/zoomAgent.png" alt="Zoom" width={24} height={24} />
+              <div>
+                <div className="text-zinc-500 font-medium">
+                  <span className="text-black font-bold">Zoom</span> to read documents
+                </div>
+                <div className="text-zinc-500">and transcribe meetings</div>
+              </div>
+            </div>
+            <Button 
+              variant="default" 
+              className="bg-blue-600 hover:bg-blue-600/80 text-white"
+              onClick={() => {}}
+            >
+              Connect
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between bg-zinc-200 p-4 rounded-xl border border-zinc-300">
+            <div className="flex items-center gap-3">
+              <Image src="/notionLogo.png" alt="Notion" width={24} height={24} />
+              <div>
+                <div className="text-zinc-500 font-medium">
+                  <span className="text-black font-bold">Notion</span> to read documents
+                </div>
+                <div className="text-zinc-500">and manage knowledge bases</div>
+              </div>
+            </div>
+            <Button 
+              variant="default" 
+              className="bg-blue-600 hover:bg-blue-600/80 text-white"
+              onClick={() => {}}
+            >
+              Connect
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between bg-zinc-200 p-4 rounded-xl border border-zinc-300">
+            <div className="flex items-center gap-3">
+              <Image src="/gmailAgent.png" alt="Gmail" width={24} height={24} />
+              <div>
+                <div className="text-zinc-500 font-medium">
+                  <span className="text-black font-bold">Gmail</span> to read and draft emails
+                </div>
+                <div className="text-zinc-500">and manage your inbox</div>
+              </div>
+            </div>
+            <Button 
+              variant="default" 
+              className="bg-blue-600 hover:bg-blue-600/80 text-white"
+              onClick={() => {}}
+            >
+              Connect
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 export default function Dashboard() {
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const [isDragging, setIsDragging] = useState(false);
@@ -423,11 +522,11 @@ export default function Dashboard() {
 
   const ConfigView = ({ agent }: { agent: Agent }) => {
     return (
-      <div className="p-8 max-w-3xl mx-auto">
+      <div className="px-8 pb-8 max-w-3xl mx-auto">
         <div className="space-y-8">
           <div className="space-y-2">
             <Label className="text-base">Name</Label>
-            <div className="flex items-center gap-2 p-2 border rounded-md bg-zinc-50">
+            <div className="flex items-center gap-2 p-2 border border-zinc-700 rounded-xl bg-zinc-800">
               <Image src={agent.icon} alt="Agent" width={20} height={20} />
               <Input 
                 value={agent.name}
@@ -440,7 +539,7 @@ export default function Dashboard() {
             <Label className="text-base">Description</Label>
             <Input 
               placeholder="Add a short description about what this agent does"
-              className="bg-zinc-50"
+              className="bg-zinc-800"
             />
           </div>
 
@@ -477,17 +576,41 @@ export default function Dashboard() {
     try {
       const response = await fetch('/api/auth/zoom');
       const { authUrl } = await response.json();
+      const userId = 'current-user-id';
+      await setupUserTasks(userId);
       window.location.href = authUrl;
     } catch (error) {
       console.error('Failed to initiate Zoom authentication:', error);
     }
   };
 
+  const handleNotionConnect = async () => {
+    try {
+      const response = await fetch('/api/auth/notion');
+      const { authUrl } = await response.json();
+      const userId = 'current-user-id';
+      window.location.href = authUrl;
+    } catch (error) {
+      console.error('Failed to initiate Notion authentication:', error);
+    }
+  };
+
+  const handleGoogleConnect = async () => {
+    try {
+      const response = await fetch('/api/auth/google');
+      const { authUrl } = await response.json();
+      const userId = 'current-user-id';
+      window.location.href = authUrl;
+    } catch (error) {
+      console.error('Failed to initiate Google authentication:', error);
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-zinc-800 text-white">
+    <div className="flex h-screen bg-zinc-900 text-white">
       {/* Left Sidebar */}
       <div 
-        className="relative bg-zinc-900 border-r border-zinc-800"
+        className="relative bg-black border-r border-zinc-800"
         style={{ width: sidebarWidth }}
       >
         {/* Logo area */}
@@ -531,19 +654,23 @@ export default function Dashboard() {
               {agent.name}
             </Button>
           ))}
-          <Button variant="ghost" className="w-full justify-start gap-3 text-zinc-400 hover:bg-[#2A2A2A]">
+          <Button variant="ghost" className="w-full justify-start gap-3 text-zinc-400 hover:bg-[#2A2A2A] hover:text-white">
             <Zap size={20} />
             Templates
           </Button>
-          <Button variant="ghost" className="w-full justify-start gap-3 text-zinc-400 hover:bg-[#2A2A2A]">
-            <Link2 size={20} />
-            Integrations
-          </Button>
+          <IntegrationsDialog 
+            trigger={
+              <Button variant="ghost" className="w-full justify-start gap-3 text-zinc-400 hover:bg-[#2A2A2A] hover:text-white">
+                <Link2 size={20} />
+                Integrations
+              </Button>
+            }
+          />
         </nav>
 
         {/* Resize handle */}
         <div
-          className="absolute top-0 right-0 w-1 h-full cursor-ew-resize bg-zinc-800 hover:bg-blue-500"
+          className="absolute top-0 right-0 w-1 h-full cursor-ew-resize bg-zinc-800 hover:bg-blue-600"
           onMouseDown={startResizing}
         />
       </div>
@@ -552,7 +679,7 @@ export default function Dashboard() {
       {selectedAgent ? (
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="border-b border-zinc-600 bg-zinc-800">
+          <div className="border-b border-zinc-800 bg-zinc-900">
             <div className="flex items-center justify-between px-4 py-4">
               <div className="flex items-center gap-2">
                 <Image src={selectedAgent.icon} alt={selectedAgent.name} width={24} height={24} />
@@ -591,20 +718,20 @@ export default function Dashboard() {
                 {/* Chat list sidebar */}
                 <div className="w-[300px] border-r border-zinc-800 ">
                   <div className="p-4">
-                    <div className="flex items-center gap-2 p-2 border border-zinc-200 rounded-md">
+                    <div className="flex items-center gap-2 p-2 border border-zinc-700 rounded-xl">
                       <Plus size={16} className="text-zinc-400" />
                       <span className="text-zinc-400">New</span>
                     </div>
                     
-                    <div className="mt-4">
-                      <div className="flex items-center gap-2 p-2 bg-zinc-100 rounded-md">
+                    <button className="mt-4 w-full">
+                      <div className="flex items-center gap-2 p-2 bg-zinc-800 rounded-xl">
                         <Image src="/agentIcon.png" alt="Chat" width={20} height={20} />
                         <div>
-                          <div className="text-zinc-900">Untitled chat</div>
-                          <div className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</div>
+                          <div className="text-zinc-400">Untitled meeting</div>
+                          <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   </div>
                 </div>
 
@@ -627,36 +754,33 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="border-t p-4">
+                  <div className="border-t border-zinc-700 p-4">
                     <div className="max-w-3xl mx-auto">
                       <div className="flex gap-2">
-                        <Button variant="outline" className="text-zinc-600">
-                          Chat
+                        <Button variant="outline" className="bg-zinc-600 text-white border-none">
+                          Join meeting
                         </Button>
-                        <Button variant="outline" className="text-zinc-600">
-                          Find data
+                        <Button variant="outline" className="bg-zinc-600 text-white border-none">
+                          Summarize meeting
                         </Button>
-                        <Button variant="outline" className="text-zinc-600">
-                          Take action
-                        </Button>
-                        <Button variant="outline" className="text-zinc-600">
-                          Run behavior
+                        <Button variant="outline" className="bg-zinc-600 text-white border-none">
+                          Approve all action items
                         </Button>
                       </div>
-                      <div className="mt-4 flex items-center gap-2 p-2 border rounded-md">
+                      {/* <div className="mt-4 flex items-center gap-2 p-2 border rounded-xl">
                         <input
                           type="text"
                           placeholder="Message your agent or press '/' for commands"
                           className="flex-1 bg-transparent border-none focus:outline-none text-zinc-900"
                         />
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="configure" className="flex-1 bg-white data-[state=active]:flex">
+            <TabsContent value="configure" className="flex-1 bg-zinc-900 data-[state=active]:flex">
               <ConfigView agent={selectedAgent} />
             </TabsContent>
           </Tabs>
@@ -683,8 +807,8 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 gap-8">
             <div className="space-y-4">
               <h3 className="text-xl text-white font-bold">Seamlessly perform tasks between apps directly</h3>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
                   <div className="flex items-center gap-3">
                     <Image src="/zoomAgent.png" alt="Notion" width={24} height={24} />
                     <div>
@@ -694,11 +818,11 @@ export default function Dashboard() {
                       <div className="text-zinc-500">and transcribe meetings</div>
                     </div>
                   </div>
-                  <Button variant="default" className="bg-[#4ade80] hover:bg-[#22c55e] text-black">
+                  <Button variant="default" className="bg-blue-600 hover:bg-blue-600/80 text-white">
                     Connect
                   </Button>
                 </div>
-                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
                   <div className="flex items-center gap-3">
                     <Image src="/notionLogo.png" alt="Notion" width={24} height={24} />
                     <div>
@@ -708,13 +832,17 @@ export default function Dashboard() {
                       <div className="text-zinc-500">and manage knowledge bases</div>
                     </div>
                   </div>
-                  <Button variant="default" className="bg-[#4ade80] hover:bg-[#22c55e] text-black">
+                  <Button 
+                    variant="default" 
+                    className="bg-blue-600 hover:bg-blue-600/80 text-white"
+                    onClick={handleNotionConnect}
+                  >
                     Connect
                   </Button>
                 </div>
-                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
                   <div className="flex items-center gap-3">
-                    <Image src="/gmail.png" alt="Gmail" width={24} height={24} />
+                    <Image src="/gmailAgent.png" alt="Gmail" width={24} height={24} />
                     <div>
                       <div className="text-zinc-500 font-medium">
                         <span className="text-white font-bold">Gmail</span> to read and draft emails
@@ -722,7 +850,11 @@ export default function Dashboard() {
                       <div className="text-zinc-500">and manage your inbox</div>
                     </div>
                   </div>
-                  <Button variant="default" className="bg-[#4ade80] hover:bg-[#22c55e] text-black">
+                  <Button 
+                    variant="default" 
+                    className="bg-blue-600 hover:bg-blue-600/80 text-white"
+                    onClick={handleGoogleConnect}
+                  >
                     Connect
                   </Button>
                 </div>
@@ -731,23 +863,30 @@ export default function Dashboard() {
 
             <div className="space-y-4">
               <h3 className="text-xl text-white font-bold">Automate tasks by setting a schedule</h3>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
-                  <div className="flex-1 text-white">Daily email summaries and priorities</div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
+                  <div className="flex-1 text-white">Auto-reply to common support questions during off-hours</div>
                   <Button variant="ghost" className="text-zinc-400">
                     <ArrowRight className="h-5 w-5" />
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
-                  <div className="flex-1 text-white">Personal daily news digest of the AI industry</div>
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
+                  <div className="flex-1 text-white">Convert weekly standup meetings into task assignments</div>
                   <Button variant="ghost" className="text-zinc-400">
                     <ArrowRight className="h-5 w-5" />
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
-                  <div className="flex-1 text-white">Weekly Business Newsletter</div>
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
+                  <div className="flex-1 text-white">Schedule team travel from calendar events</div>
+                  <Button variant="ghost" className="text-zinc-400">
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
+                  <div className="flex-1 text-white">Generate daily meeting summary presentations</div>
                   <Button variant="ghost" className="text-zinc-400">
                     <ArrowRight className="h-5 w-5" />
                   </Button>
