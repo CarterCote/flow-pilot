@@ -494,6 +494,34 @@ type Task = {
   status: 'pending' | 'accepted' | 'rejected';
 };
 
+// Add this helper function before the Dashboard component
+const groupTasksByTranscript = (tasks: Task[]) => {
+  const groups = new Map<string, {meetingId: string, tasks: Task[]}>();
+  let meetingCounter = 1;
+  
+  tasks.forEach(task => {
+    const transcript = task.metadata.transcript;
+    if (!groups.has(transcript)) {
+      groups.set(transcript, {
+        meetingId: `Meeting ${meetingCounter}`,
+        tasks: []
+      });
+      meetingCounter++;
+    }
+    groups.get(transcript)?.tasks.push(task);
+  });
+  
+  return Array.from(groups.values());
+};
+
+// Add this mapping constant before the Dashboard component
+const TOOL_MAPPING = {
+  'support': 'send email',
+  'task': 'notion',
+  'travel': 'make a call',
+  'presentation': 'create presentation'
+};
+
 export default function Dashboard() {
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const [isDragging, setIsDragging] = useState(false);
@@ -502,7 +530,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("chat");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const [selectedMeeting, setSelectedMeeting] = useState<number | null>(1);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -683,14 +711,6 @@ export default function Dashboard() {
     }
   };
 
-  // Create a mapping of tools to their display names
-  const TOOL_MAPPING = {
-    'support': 'send email',
-    'task': 'notion',
-    'travel': 'make a call',
-    'presentation': 'create presentation'
-  };
-
   return (
     <div className="flex h-screen bg-zinc-900 text-white">
       {/* Left Sidebar */}
@@ -807,70 +827,70 @@ export default function Dashboard() {
                       <span className="text-zinc-400">New meeting</span>
                     </div>
 
-                    {/* Support Email Agent */}
+                    {/* Meeting 1 */}
                     <button 
-                      className={`w-full text-left ${selectedTool === 'support' ? 'opacity-100' : 'opacity-70'}`}
-                      onClick={() => setSelectedTool(selectedTool === 'support' ? null : 'support')}
+                      className={`w-full text-left ${selectedMeeting === 1 ? 'opacity-100' : 'opacity-70'}`}
+                      onClick={() => setSelectedMeeting(selectedMeeting === 1 ? null : 1)}
                     >
-                      <div className={`flex items-center gap-2 p-2 ${selectedTool === 'support' ? 'bg-zinc-700' : 'bg-zinc-800'} rounded-xl`}>
+                      <div className={`flex items-center gap-2 p-2 ${selectedMeeting === 1 ? 'bg-zinc-700' : 'bg-zinc-800'} rounded-xl`}>
                         <div className="flex gap-1">
-                          <Image src="/gmailAgent.png" alt="Gmail" width={20} height={20} />
-                          <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
+                          <Image src="/zoomAgent.png" alt="Gmail" width={20} height={20} />
+                          <Image src="/gmailAgent.png" alt="Zoom" width={20} height={20} />
                         </div>
                         <div>
-                          <div className="text-zinc-400">Support Email Agent</div>
-                          <div className="text-sm text-zinc-400">Auto-reply to customer questions</div>
+                          <div className="text-zinc-400">Meeting 1</div>
+                          <div className="text-sm text-zinc-400">{new Date().toLocaleTimeString()}</div>
                         </div>
                       </div>
                     </button>
 
-                    {/* Task Management Agent */}
+                    {/* Meeting 2 */}
                     <button 
-                      className={`w-full text-left ${selectedTool === 'task' ? 'opacity-100' : 'opacity-70'}`}
-                      onClick={() => setSelectedTool(selectedTool === 'task' ? null : 'task')}
+                      className={`w-full text-left ${selectedMeeting === 2 ? 'opacity-100' : 'opacity-70'}`}
+                      onClick={() => setSelectedMeeting(selectedMeeting === 2 ? null : 2)}
                     >
-                      <div className={`flex items-center gap-2 p-2 ${selectedTool === 'task' ? 'bg-zinc-700' : 'bg-zinc-900'} rounded-xl hover:bg-zinc-800 transition-all duration-500`}>
+                      <div className={`flex items-center gap-2 p-2 ${selectedMeeting === 2 ? 'bg-zinc-700' : 'bg-zinc-900'} rounded-xl hover:bg-zinc-800 transition-all duration-500`}>
                         <div className="flex gap-1">
                           <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
-                          <Image src="/linear.png" alt="Linear" width={20} height={20} />
+                          <Image src="/slidesAgent.png" alt="Linear" width={20} height={20} />
                         </div>
                         <div>
-                          <div className="text-zinc-400">Task Management Agent</div>
-                          <span className="text-sm text-zinc-500">Convert meetings to tasks</span>
+                          <div className="text-zinc-400">Meeting 2</div>
+                          <span className="text-sm text-zinc-500">{new Date().toLocaleTimeString()}</span>
                         </div>
                       </div>
                     </button>
 
-                    {/* Travel Booking Assistant */}
+                    {/* Meeting 3 */}
                     <button 
-                      className={`w-full text-left ${selectedTool === 'travel' ? 'opacity-100' : 'opacity-70'}`}
-                      onClick={() => setSelectedTool(selectedTool === 'travel' ? null : 'travel')}
+                      className={`w-full text-left ${selectedMeeting === 3 ? 'opacity-100' : 'opacity-70'}`}
+                      onClick={() => setSelectedMeeting(selectedMeeting === 3 ? null : 3)}
                     >
-                      <div className={`flex items-center gap-2 p-2 ${selectedTool === 'travel' ? 'bg-zinc-700' : 'bg-zinc-900'} rounded-xl hover:bg-zinc-800 transition-all duration-500`}>
+                      <div className={`flex items-center gap-2 p-2 ${selectedMeeting === 3 ? 'bg-zinc-700' : 'bg-zinc-900'} rounded-xl hover:bg-zinc-800 transition-all duration-500`}>
                         <div className="flex gap-1">
                           <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
                           <Image src="/phoneAgent.png" alt="Phone" width={20} height={20} />
                         </div>
                         <div>
-                          <div className="text-zinc-400">Travel Booking Assistant</div>
-                          <span className="text-sm text-zinc-500">Schedule travel from meetings</span>
+                          <div className="text-zinc-400">Meeting 3</div>
+                          <span className="text-sm text-zinc-500">{new Date().toLocaleTimeString()}</span>
                         </div>
                       </div>
                     </button>
 
-                    {/* Presentation Creator */}
+                    {/* Meeting 4 */}
                     <button 
-                      className={`w-full text-left ${selectedTool === 'presentation' ? 'opacity-100' : 'opacity-70'}`}
-                      onClick={() => setSelectedTool(selectedTool === 'presentation' ? null : 'presentation')}
+                      className={`w-full text-left ${selectedMeeting === 4 ? 'opacity-100' : 'opacity-70'}`}
+                      onClick={() => setSelectedMeeting(selectedMeeting === 4 ? null : 4)}
                     >
-                      <div className={`flex items-center gap-2 p-2 ${selectedTool === 'presentation' ? 'bg-zinc-700' : 'bg-zinc-900'} rounded-xl hover:bg-zinc-800 transition-all duration-500`}>
+                      <div className={`flex items-center gap-2 p-2 ${selectedMeeting === 4 ? 'bg-zinc-700' : 'bg-zinc-900'} rounded-xl hover:bg-zinc-800 transition-all duration-500`}>
                         <div className="flex gap-1">
                           <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
-                          <Image src="/slidesAgent.png" alt="Slides" width={20} height={20} />
+                          <Image src="/linear.png" alt="Slides" width={20} height={20} />
                         </div>
                         <div>
-                          <div className="text-zinc-400">Presentation Creator</div>
-                          <span className="text-sm text-zinc-500">Generate slides from meetings</span>
+                          <div className="text-zinc-400">Meeting 4</div>
+                          <span className="text-sm text-zinc-500">{new Date().toLocaleTimeString()}</span>
                         </div>
                       </div>
                     </button>
@@ -880,66 +900,71 @@ export default function Dashboard() {
                 {/* Chat interface */}
                 <div className="flex-1 flex flex-col h-full overflow-hidden">
                   <div className="h-[calc(100vh-155px)] p-4 overflow-y-auto">
-                    {tasks
-                      .filter(task => !selectedTool || task.tool.toLowerCase() === TOOL_MAPPING[selectedTool as keyof typeof TOOL_MAPPING])
-                      .map((task) => (
-                        <div key={task.id} className="flex items-start gap-4 mt-4 p-4 bg-zinc-800 rounded-xl">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium">{task.task}</span>
-                              <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
-                            </div>
-                            <div className="text-sm text-zinc-400">
-                              From transcript:
-                              <div className="mt-2 p-3 bg-zinc-900 rounded-lg min-h-16">
-                                <div className="relative">
-                                  <div className={`line-clamp-4 ${expanded === task.id ? 'line-clamp-none' : ''} pr-8 whitespace-pre-line`}>
-                                    {task.metadata.transcript
-                                      .replace(/^\{"transcript":\s*"|"\}$/g, '')  // Remove JSON wrapper
-                                      .replace(/\\n/g, '\n')  // Convert \n to newlines
-                                      .replace(/\\"/g, "'")} 
+                    {groupTasksByTranscript(tasks)
+                      .filter(({meetingId}) => !selectedMeeting || meetingId === `Meeting ${selectedMeeting}`)
+                      .map(({meetingId, tasks: meetingTasks}) => (
+                        <div key={meetingId} className="mb-8">
+                          <h3 className="text-lg font-medium text-zinc-300 mb-4">{meetingId}</h3>
+                          {meetingTasks.map((task) => (
+                            <div key={task.id} className="flex items-start gap-4 mt-4 p-4 bg-zinc-800 rounded-xl">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium">{task.task}</span>
+                                  <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
+                                </div>
+                                <div className="text-sm text-zinc-400">
+                                  From transcript:
+                                  <div className="mt-2 p-3 bg-zinc-900 rounded-lg min-h-16">
+                                    <div className="relative">
+                                      <div className={`line-clamp-4 ${expanded === task.id ? 'line-clamp-none' : ''} pr-8 whitespace-pre-line`}>
+                                        {task.metadata.transcript
+                                          .replace(/^\{"transcript":\s*"|"\}$/g, '')
+                                          .replace(/\\n/g, '\n')
+                                          .replace(/\\"/g, "'")}
+                                      </div>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm"
+                                        className="absolute bottom-0 right-0 text-zinc-400 hover:text-white hover:bg-white/20"
+                                        onClick={() => setExpanded(expanded === task.id ? null : task.id)}
+                                      >
+                                        <Image 
+                                          src="/expand.png"
+                                          alt="Expand"
+                                          width={16}
+                                          height={16}
+                                          className={`transform transition-transform ${expanded === task.id ? 'rotate-90' : ''}`}
+                                        />
+                                      </Button>
+                                    </div>
                                   </div>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    className="absolute bottom-0 right-0 text-zinc-400 hover:text-white hover:bg-white/20"
-                                    onClick={() => setExpanded(expanded === task.id ? null : task.id)}
-                                  >
-                                    <Image 
-                                      src="/expand.png"
-                                      alt="Expand"
-                                      width={16}
-                                      height={16}
-                                      className={`transform transition-transform ${expanded === task.id ? 'rotate-90' : ''}`}
-                                    />
-                                  </Button>
                                 </div>
                               </div>
+                              <div className="flex flex-row space-x-4">
+                                <Button 
+                                  variant="ghost" 
+                                  className={`shrink-0 bg-green-500/10 text-green-400 
+                                    hover:bg-green-500/20 hover:text-green-300
+                                    ${task.status === 'accepted' ? 'text-green-500' : ''}`}
+                                  onClick={() => updateTaskApproval(task.id, true)}
+                                >
+                                  <Check className="h-4 w-4 mr-2" />
+                                  {task.status === 'accepted' ? 'Accepted' : 'Accept'}
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  className={`shrink-0 bg-red-500/10 text-red-400
+                                    hover:bg-red-500/20 hover:text-red-300
+                                    ${task.status === 'rejected' ? 'text-red-500' : ''}
+                                    ${task.status === 'accepted' ? 'opacity-20' : ''}`}
+                                  onClick={() => updateTaskApproval(task.id, false)}
+                                >
+                                  <X className="h-4 w-4 mr-2" />
+                                  {task.status === 'rejected' ? 'Rejected' : 'Reject'}
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex flex-row space-x-4">
-                            <Button 
-                              variant="ghost" 
-                              className={`shrink-0 bg-green-500/10 text-green-400 
-                                hover:bg-green-500/20 hover:text-green-300
-                                ${task.status === 'accepted' ? 'text-green-500' : ''}`}
-                              onClick={() => updateTaskApproval(task.id, true)}
-                            >
-                              <Check className="h-4 w-4 mr-2" />
-                              {task.status === 'accepted' ? 'Accepted' : 'Accept'}
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              className={`shrink-0 bg-red-500/10 text-red-400
-                                hover:bg-red-500/20 hover:text-red-300
-                                ${task.status === 'rejected' ? 'text-red-500' : ''}
-                                ${task.status === 'accepted' ? 'opacity-20' : ''}`}
-                              onClick={() => updateTaskApproval(task.id, false)}
-                            >
-                              <X className="h-4 w-4 mr-2" />
-                              {task.status === 'rejected' ? 'Rejected' : 'Reject'}
-                            </Button>
-                          </div>
+                          ))}
                         </div>
                       ))}
                   </div>
