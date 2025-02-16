@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Zap, Link2, X } from 'lucide-react';
+import { Plus, Zap, Link2, X, ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -157,7 +157,7 @@ const NewAgentDialog = ({
               </div>
               <Button 
                 variant="default" 
-                className={`${isConnected ? 'bg-green-600 hover:bg-green-700' : 'bg-[#4F46E5] hover:bg-[#4338CA]'}`}
+                className={`${isConnected ? 'bg-blue-600 hover:bg-blue-700' : 'bg-[#4F46E5] hover:bg-[#4338CA]'}`}
                 onClick={handleConnect}
                 disabled={isConnecting || isConnected}
               >
@@ -473,11 +473,21 @@ export default function Dashboard() {
     );
   };
 
+  const handleZoomConnect = async () => {
+    try {
+      const response = await fetch('/api/auth/zoom');
+      const { authUrl } = await response.json();
+      window.location.href = authUrl;
+    } catch (error) {
+      console.error('Failed to initiate Zoom authentication:', error);
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-[#1A1A1A] text-white">
+    <div className="flex h-screen bg-zinc-800 text-white">
       {/* Left Sidebar */}
       <div 
-        className="relative bg-[#1A1A1A] border-r border-zinc-800"
+        className="relative bg-zinc-900 border-r border-zinc-800"
         style={{ width: sidebarWidth }}
       >
         {/* Logo area */}
@@ -653,18 +663,98 @@ export default function Dashboard() {
         </div>
       ) : (
         // Empty state when no agent is selected
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="text-center space-y-4">
-            <p className="text-zinc-400 text-lg">You currently have no agents</p>
+        <div className="flex-1 flex flex-col p-32">
+          <div className="flex justify-between items-center mb-16">
+            <div className="-space-y-2">
+              <h1 className="text-[40px] text-blue-400 font-bold">Hi Carter,</h1>
+              <h2 className="text-[40px] text-blue-400 font-bold">How can we help you today?</h2>
+            </div>
             <NewAgentDialog 
               trigger={
-                <Button className="gap-2">
-                  <Plus className="h-5 w-5" />
+                <Button className="gap-2 bg-white text-black">
+                  <Plus className="h-5 w-5 text-black" />
                   New agent
                 </Button>
               }
               onAgentCreate={handleAgentCreation}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <h3 className="text-xl text-white font-bold">Seamlessly perform tasks between apps directly</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Image src="/zoomAgent.png" alt="Notion" width={24} height={24} />
+                    <div>
+                      <div className="text-zinc-500 font-medium">
+                        <span className="text-white font-bold">Zoom</span> to read documents
+                      </div>
+                      <div className="text-zinc-500">and transcribe meetings</div>
+                    </div>
+                  </div>
+                  <Button variant="default" className="bg-[#4ade80] hover:bg-[#22c55e] text-black">
+                    Connect
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Image src="/notionLogo.png" alt="Notion" width={24} height={24} />
+                    <div>
+                      <div className="text-zinc-500 font-medium">
+                        <span className="text-white font-bold">Notion</span> to read documents
+                      </div>
+                      <div className="text-zinc-500">and manage knowledge bases</div>
+                    </div>
+                  </div>
+                  <Button variant="default" className="bg-[#4ade80] hover:bg-[#22c55e] text-black">
+                    Connect
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Image src="/gmail.png" alt="Gmail" width={24} height={24} />
+                    <div>
+                      <div className="text-zinc-500 font-medium">
+                        <span className="text-white font-bold">Gmail</span> to read and draft emails
+                      </div>
+                      <div className="text-zinc-500">and manage your inbox</div>
+                    </div>
+                  </div>
+                  <Button variant="default" className="bg-[#4ade80] hover:bg-[#22c55e] text-black">
+                    Connect
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-xl text-white font-bold">Automate tasks by setting a schedule</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+                  <div className="flex-1 text-white">Daily email summaries and priorities</div>
+                  <Button variant="ghost" className="text-zinc-400">
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+                  <div className="flex-1 text-white">Personal daily news digest of the AI industry</div>
+                  <Button variant="ghost" className="text-zinc-400">
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+                  <div className="flex-1 text-white">Weekly Business Newsletter</div>
+                  <Button variant="ghost" className="text-zinc-400">
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

@@ -62,7 +62,12 @@ export default {
   			'color-2': 'hsl(var(--color-2))',
   			'color-3': 'hsl(var(--color-3))',
   			'color-4': 'hsl(var(--color-4))',
-  			'color-5': 'hsl(var(--color-5))'
+  			'color-5': 'hsl(var(--color-5))',
+  			blue: {
+  				DEFAULT: '#4F46E5',
+  				light: '#818CF8',
+  				dark: '#3730A3'
+  			},
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
