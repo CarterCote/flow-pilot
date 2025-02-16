@@ -522,14 +522,15 @@ const groupTasksByTranscript = (tasks: Task[]) => {
   return Array.from(groups.values());
 };
 
-// Add this mapping constant before the Dashboard component
-const TOOL_MAPPING = {
-  'support': 'send email',
-  'task': 'notion',
-  'travel': 'make a call',
-  'presentation': 'create presentation'
+// Add this type before the Dashboard component
+type SheetyRow = {
+  task: string;
+  tool: string;
+  transcript: string;
+  approve?: boolean;
 };
 
+// Add this mapping constant before the Dashboard component
 export default function Dashboard() {
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const [isDragging, setIsDragging] = useState(false);
@@ -539,7 +540,6 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedMeeting, setSelectedMeeting] = useState<number | null>(1);
-  const [agentName, setAgentName] = useState("");
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -551,7 +551,7 @@ export default function Dashboard() {
         console.log('Raw API response:', json);
         console.log('Sheet3 data:', json.sheet3);
         
-        const mappedTasks = json.sheet3.map((row: any, index: number) => ({
+        const mappedTasks = json.sheet3.map((row: SheetyRow, index: number) => ({
           id: crypto.randomUUID(),
           rowNumber: index + 2,
           task: row.task,
@@ -1048,7 +1048,6 @@ export default function Dashboard() {
                     variant="ghost" 
                     className="text-zinc-400"
                     onClick={() => {
-                      setAgentName("xyz");
                       handleCreateAgent("xyz", "/agentIcon.png");
                     }}
                   >
