@@ -38,7 +38,7 @@ export const FloatingNav = ({
 
       {/* Navigation Items */}
       <div className="flex items-center justify-center space-x-4">
-        {navItems.map((navItem: any, idx: number) => (
+        {navItems.map((navItem: { name: string; link: string }, idx: number) => (
           <Link
             key={`link=${idx}`}
             href={navItem.link}

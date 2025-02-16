@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 export const Icons = {
   gitHub: () => (
@@ -74,7 +75,7 @@ export const Icons = {
     </svg>
   ),
   zoom: () => (
-    <img
+    <Image
       src="/zoom.png"
       alt="Zoom"
       width={100}
@@ -83,7 +84,7 @@ export const Icons = {
     />
   ),
   linear: () => (
-    <img
+    <Image
       src="/linear.png"
       alt="Linear"
       width={100}

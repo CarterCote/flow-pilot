@@ -52,13 +52,12 @@ const ShinyButton = ({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = () => {
     if (isMobile) {
       setIsTouched(true);
-      // Use setTimeout to allow the animation to play before navigating
       setTimeout(() => {
         window.location.href = href;
-      }, 200); // Adjust timing as needed
+      }, 200);
     }
   };
 
@@ -82,7 +81,7 @@ const ShinyButton = ({
       {...animationProps}
       className={cn(
         "group relative inline-block rounded-2xl px-6 py-5 font-bold backdrop-blur-xl transition-[box-shadow] duration-300 ease-in-out hover:shadow",
-        isBlue ? "bg-crayoBlue text-white" : "bg-white text-slate-950",
+        isBlue ? "bg-crayoBlue text-white" : "bg-white text-zinc-950",
         className,
       )}
       onClick={handleClick}
@@ -93,7 +92,7 @@ const ShinyButton = ({
         <div
           className={cn(
             "absolute left-0 z-10 opacity-0 transition-all duration-300 ease-in-out",
-            isActive && "left-1/2 -translate-x-1/2 opacity-100",
+            isActive && "left-1/2 -tranzinc-x-1/2 opacity-100",
           )}
         >
           <Image
@@ -111,7 +110,7 @@ const ShinyButton = ({
           className={cn(
             "relative block h-full w-full text-lg font-bold transition-opacity duration-300 ease-in-out",
             isActive && "opacity-0",
-            isBlue ? "text-white" : "text-slate-950",
+            isBlue ? "text-white" : "text-zinc-950",
           )}
           style={{
             maskImage:
