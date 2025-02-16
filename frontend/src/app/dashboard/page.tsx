@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { Plus, Zap, Link2, X, ArrowRight, Check } from 'lucide-react';
@@ -114,13 +114,15 @@ const NewAgentDialog = ({
             </div>
           </div>
 
-          <Button 
-            className="w-full bg-black text-white" 
-            variant="secondary"
-            onClick={() => handleCreateAgent(agentName, "/agentIcon.png")}
-          >
-            Start from scratch
-          </Button>
+          <DialogClose asChild>
+            <Button 
+              className="w-full bg-black text-white" 
+              variant="secondary"
+              onClick={() => handleCreateAgent(agentName, "/agentIcon.png")}
+            >
+              Start from scratch
+            </Button>
+          </DialogClose>
         </div>
       </>
     );
@@ -500,6 +502,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("chat");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [selectedTool, setSelectedTool] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -680,6 +683,14 @@ export default function Dashboard() {
     }
   };
 
+  // Create a mapping of tools to their display names
+  const TOOL_MAPPING = {
+    'support': 'send email',
+    'task': 'notion',
+    'travel': 'make a call',
+    'presentation': 'create presentation'
+  };
+
   return (
     <div className="flex h-screen bg-zinc-900 text-white">
       {/* Left Sidebar */}
@@ -793,32 +804,73 @@ export default function Dashboard() {
                   <div className="p-4 space-y-4">
                     <div className="flex items-center gap-2 p-2 border border-zinc-700 rounded-xl">
                       <Plus size={16} className="text-zinc-400" />
-                      <span className="text-zinc-400">New</span>
+                      <span className="text-zinc-400">New meeting</span>
                     </div>
-                    <button className="mt-4 w-full">
-                      <div className="flex items-center gap-2 p-2 bg-zinc-800 rounded-xl">
-                        <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
+
+                    {/* Support Email Agent */}
+                    <button 
+                      className={`w-full text-left ${selectedTool === 'support' ? 'opacity-100' : 'opacity-70'}`}
+                      onClick={() => setSelectedTool(selectedTool === 'support' ? null : 'support')}
+                    >
+                      <div className={`flex items-center gap-2 p-2 ${selectedTool === 'support' ? 'bg-zinc-700' : 'bg-zinc-800'} rounded-xl`}>
+                        <div className="flex gap-1">
+                          <Image src="/gmailAgent.png" alt="Gmail" width={20} height={20} />
+                          <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
+                        </div>
                         <div>
-                          <div className="text-zinc-400">Untitled meeting</div>
-                          <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
+                          <div className="text-zinc-400">Support Email Agent</div>
+                          <div className="text-sm text-zinc-400">Auto-reply to customer questions</div>
                         </div>
                       </div>
                     </button>
-                    <button className="mt-4 w-full">
-                      <div className="flex items-center gap-2 p-2 bg-zinc-900 rounded-xl hover:bg-zinc-800 transition-all duration-500">
-                        <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
+
+                    {/* Task Management Agent */}
+                    <button 
+                      className={`w-full text-left ${selectedTool === 'task' ? 'opacity-100' : 'opacity-70'}`}
+                      onClick={() => setSelectedTool(selectedTool === 'task' ? null : 'task')}
+                    >
+                      <div className={`flex items-center gap-2 p-2 ${selectedTool === 'task' ? 'bg-zinc-700' : 'bg-zinc-900'} rounded-xl hover:bg-zinc-800 transition-all duration-500`}>
+                        <div className="flex gap-1">
+                          <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
+                          <Image src="/linear.png" alt="Linear" width={20} height={20} />
+                        </div>
                         <div>
-                          <div className="text-zinc-400">Untitled meeting</div>
-                          <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
+                          <div className="text-zinc-400">Task Management Agent</div>
+                          <span className="text-sm text-zinc-500">Convert meetings to tasks</span>
                         </div>
                       </div>
                     </button>
-                    <button className="w-full">
-                      <div className="flex items-center gap-2 p-2 bg-zinc-900 rounded-xl hover:bg-zinc-800 transition-all duration-500">
-                        <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
+
+                    {/* Travel Booking Assistant */}
+                    <button 
+                      className={`w-full text-left ${selectedTool === 'travel' ? 'opacity-100' : 'opacity-70'}`}
+                      onClick={() => setSelectedTool(selectedTool === 'travel' ? null : 'travel')}
+                    >
+                      <div className={`flex items-center gap-2 p-2 ${selectedTool === 'travel' ? 'bg-zinc-700' : 'bg-zinc-900'} rounded-xl hover:bg-zinc-800 transition-all duration-500`}>
+                        <div className="flex gap-1">
+                          <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
+                          <Image src="/phoneAgent.png" alt="Phone" width={20} height={20} />
+                        </div>
                         <div>
-                          <div className="text-zinc-400">Untitled meeting</div>
-                          <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
+                          <div className="text-zinc-400">Travel Booking Assistant</div>
+                          <span className="text-sm text-zinc-500">Schedule travel from meetings</span>
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Presentation Creator */}
+                    <button 
+                      className={`w-full text-left ${selectedTool === 'presentation' ? 'opacity-100' : 'opacity-70'}`}
+                      onClick={() => setSelectedTool(selectedTool === 'presentation' ? null : 'presentation')}
+                    >
+                      <div className={`flex items-center gap-2 p-2 ${selectedTool === 'presentation' ? 'bg-zinc-700' : 'bg-zinc-900'} rounded-xl hover:bg-zinc-800 transition-all duration-500`}>
+                        <div className="flex gap-1">
+                          <Image src="/zoomAgent.png" alt="Zoom" width={20} height={20} />
+                          <Image src="/slidesAgent.png" alt="Slides" width={20} height={20} />
+                        </div>
+                        <div>
+                          <div className="text-zinc-400">Presentation Creator</div>
+                          <span className="text-sm text-zinc-500">Generate slides from meetings</span>
                         </div>
                       </div>
                     </button>
@@ -828,93 +880,95 @@ export default function Dashboard() {
                 {/* Chat interface */}
                 <div className="flex-1 flex flex-col h-full overflow-hidden">
                   <div className="h-[calc(100vh-155px)] p-4 overflow-y-auto">
-                    {tasks.map((task) => (
-                      <div key={task.id} className="flex items-start gap-4 mt-4 p-4 bg-zinc-800 rounded-xl">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium">{task.task}</span>
-                            <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
-                          </div>
-                          <div className="text-sm text-zinc-400">
-                            From transcript:
-                            <div className="mt-2 p-3 bg-zinc-900 rounded-lg min-h-16">
-                              <div className="relative">
-                                <div className={`line-clamp-4 ${expanded === task.id ? 'line-clamp-none' : ''} pr-8 whitespace-pre-line`}>
-                                  {task.metadata.transcript
-                                    .replace(/^\{"transcript":\s*"|"\}$/g, '')  // Remove JSON wrapper
-                                    .replace(/\\n/g, '\n')  // Convert \n to newlines
-                                    .replace(/\\"/g, "'")} 
+                    {tasks
+                      .filter(task => !selectedTool || task.tool.toLowerCase() === TOOL_MAPPING[selectedTool as keyof typeof TOOL_MAPPING])
+                      .map((task) => (
+                        <div key={task.id} className="flex items-start gap-4 mt-4 p-4 bg-zinc-800 rounded-xl">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium">{task.task}</span>
+                              <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
+                            </div>
+                            <div className="text-sm text-zinc-400">
+                              From transcript:
+                              <div className="mt-2 p-3 bg-zinc-900 rounded-lg min-h-16">
+                                <div className="relative">
+                                  <div className={`line-clamp-4 ${expanded === task.id ? 'line-clamp-none' : ''} pr-8 whitespace-pre-line`}>
+                                    {task.metadata.transcript
+                                      .replace(/^\{"transcript":\s*"|"\}$/g, '')  // Remove JSON wrapper
+                                      .replace(/\\n/g, '\n')  // Convert \n to newlines
+                                      .replace(/\\"/g, "'")} 
+                                  </div>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    className="absolute bottom-0 right-0 text-zinc-400 hover:text-white hover:bg-white/20"
+                                    onClick={() => setExpanded(expanded === task.id ? null : task.id)}
+                                  >
+                                    <Image 
+                                      src="/expand.png"
+                                      alt="Expand"
+                                      width={16}
+                                      height={16}
+                                      className={`transform transition-transform ${expanded === task.id ? 'rotate-90' : ''}`}
+                                    />
+                                  </Button>
                                 </div>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  className="absolute bottom-0 right-0 text-zinc-400 hover:text-white hover:bg-white/20"
-                                  onClick={() => setExpanded(expanded === task.id ? null : task.id)}
-                                >
-                                  <Image 
-                                    src="/expand.png"
-                                    alt="Expand"
-                                    width={16}
-                                    height={16}
-                                    className={`transform transition-transform ${expanded === task.id ? 'rotate-90' : ''}`}
-                                  />
-                                </Button>
                               </div>
                             </div>
                           </div>
+                          <div className="flex flex-row space-x-4">
+                            <Button 
+                              variant="ghost" 
+                              className={`shrink-0 bg-green-500/10 text-green-400 
+                                hover:bg-green-500/20 hover:text-green-300
+                                ${task.status === 'accepted' ? 'text-green-500' : ''}`}
+                              onClick={() => updateTaskApproval(task.id, true)}
+                            >
+                              <Check className="h-4 w-4 mr-2" />
+                              {task.status === 'accepted' ? 'Accepted' : 'Accept'}
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              className={`shrink-0 bg-red-500/10 text-red-400
+                                hover:bg-red-500/20 hover:text-red-300
+                                ${task.status === 'rejected' ? 'text-red-500' : ''}
+                                ${task.status === 'accepted' ? 'opacity-20' : ''}`}
+                              onClick={() => updateTaskApproval(task.id, false)}
+                            >
+                              <X className="h-4 w-4 mr-2" />
+                              {task.status === 'rejected' ? 'Rejected' : 'Reject'}
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex flex-row space-x-4">
-                          <Button 
-                            variant="ghost" 
-                            className={`shrink-0 bg-green-500/10 text-green-400 
-                              hover:bg-green-500/20 hover:text-green-300
-                              ${task.status === 'accepted' ? 'text-green-500' : ''}`}
-                            onClick={() => updateTaskApproval(task.id, true)}
-                          >
-                            <Check className="h-4 w-4 mr-2" />
-                            {task.status === 'accepted' ? 'Accepted' : 'Accept'}
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            className={`shrink-0 bg-red-500/10 text-red-400
-                              hover:bg-red-500/20 hover:text-red-300
-                              ${task.status === 'rejected' ? 'text-red-500' : ''}
-                              ${task.status === 'accepted' ? 'opacity-20' : ''}`}
-                            onClick={() => updateTaskApproval(task.id, false)}
-                          >
-                            <X className="h-4 w-4 mr-2" />
-                            {task.status === 'rejected' ? 'Rejected' : 'Reject'}
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
 
                   <div className="border-t border-zinc-700 p-4">
                     <div className="max-w-3xl mx-auto">
                       <div className="flex gap-2">
                       <Button 
-  variant="outline" 
-  className="bg-zinc-600 text-white border-none"
-  onClick={() => {
-    // Update all tasks to accepted status
-    setTasks(tasks.map(task => ({ ...task, status: 'accepted' })));
-    
-    // Create the message for all tasks
-    const taskTitles = tasks
-      .filter(task => task.status !== 'rejected')
-      .map(task => task.task)
-      .join('\n');
-    
-    // Encode the message for URL
-    const message = "Get the last action items from the meeting recording and execute every single one of them."
-    
-    // Redirect to chat URL with tasks
-    window.location.href = `https://treehacks-assistant.dain.org/chat?message=${message}`;
-  }}
->
-  Approve all action items
-</Button>
+                        variant="outline" 
+                        className="bg-zinc-600 text-white border-none"
+                        onClick={() => {
+                          // Update all tasks to accepted status
+                          setTasks(tasks.map(task => ({ ...task, status: 'accepted' })));
+                          
+                          // Create the message for all tasks
+                          const taskTitles = tasks
+                            .filter(task => task.status !== 'rejected')
+                            .map(task => task.task)
+                            .join('\n');
+                          
+                          // Encode the message for URL
+                          const message = "Get the last action items from the meeting recording and execute every single one of them."
+                          
+                          // Redirect to chat URL with tasks
+                          window.location.href = `https://treehacks-assistant.dain.org/chat?message=${message}`;
+                        }}
+                      >
+                        Approve all action items
+                      </Button>
                       </div>
                     </div>
                   </div>
