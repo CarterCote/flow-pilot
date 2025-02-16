@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTrigger,
   DialogClose,
+  DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import {
@@ -17,6 +18,7 @@ import {
   TabsContent,
 } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 const TEMPLATES = {
   'support': {
@@ -72,7 +74,7 @@ const TEMPLATES = {
   }
 };
 
-// Extract NewAgentDialog component
+// Move NewAgentDialog component definition outside Dashboard
 const NewAgentDialog = ({ 
   trigger, 
   onAgentCreate 
@@ -281,6 +283,9 @@ const NewAgentDialog = ({
         {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[1080px] p-0">
+        <VisuallyHidden asChild>
+          <DialogTitle>Create New Agent</DialogTitle>
+        </VisuallyHidden>
         <div className="flex gap-6 h-[500px]">
           {/* Left side - Templates */}
           <div className="flex-1 space-y-4 p-6">
@@ -409,6 +414,9 @@ const IntegrationsDialog = ({ trigger }: { trigger: React.ReactNode }) => {
         {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
+        <VisuallyHidden asChild>
+          <DialogTitle>Integrations</DialogTitle>
+        </VisuallyHidden>
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-semibold">Integrations</h2>
           <DialogClose className="rounded-full p-2 hover:bg-zinc-100">
@@ -531,6 +539,7 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedMeeting, setSelectedMeeting] = useState<number | null>(1);
+  const [agentName, setAgentName] = useState("");
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -600,14 +609,14 @@ export default function Dashboard() {
     document.body.style.userSelect = '';
   };
 
-  const handleAgentCreation = (name: string, icon: string) => {
+  const handleCreateAgent = (name: string, icon: string) => {
     const newAgent = {
       id: crypto.randomUUID(),
       name,
       icon,
     };
     setAgents(prev => [...prev, newAgent]);
-    setSelectedAgent(newAgent); // Select the newly created agent
+    setSelectedAgent(newAgent);
   };
 
   const ConfigView = ({ agent }: { agent: Agent }) => {
@@ -742,7 +751,7 @@ export default function Dashboard() {
                 Add agent
               </Button>
             }
-            onAgentCreate={handleAgentCreation}
+            onAgentCreate={handleCreateAgent}
           />
           {agents.map(agent => (
             <Button
@@ -1021,11 +1030,108 @@ export default function Dashboard() {
                   New agent
                 </Button>
               }
-              onAgentCreate={handleAgentCreation}
+              onAgentCreate={handleCreateAgent}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-8">
+
+            <div className="space-y-4">
+              <h3 className="text-xl text-white font-bold">Recent meetings</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      <Image src="/zoomAgent.png" alt="Zoom" width={24} height={24} />
+                      <Image src="/gmailAgent.png" alt="Gmail" width={24} height={24} />
+                    </div>
+                    <div>
+                      <div className="text-white font-medium">Meeting 1</div>
+                      <div className="text-zinc-500">Today at {new Date().toLocaleTimeString()}</div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    className="text-zinc-400"
+                    onClick={() => {
+                      setAgentName("xyz");
+                      handleCreateAgent("xyz", "/agentIcon.png");
+                    }}
+                  >
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      <Image src="/zoomAgent.png" alt="Zoom" width={24} height={24} />
+                      <Image src="/linear.png" alt="Linear" width={24} height={24} />
+                    </div>
+                    <div>
+                      <div className="text-white font-medium">Meeting 2</div>
+                      <div className="text-zinc-500">Today at {new Date().toLocaleTimeString()}</div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    className="text-zinc-400"
+                    onClick={() => {
+                      setSelectedAgent(agents[0]);
+                      setSelectedMeeting(2);
+                    }}
+                  >
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      <Image src="/zoomAgent.png" alt="Zoom" width={24} height={24} />
+                      <Image src="/phoneAgent.png" alt="Phone" width={24} height={24} />
+                    </div>
+                    <div>
+                      <div className="text-white font-medium">Meeting 3</div>
+                      <div className="text-zinc-500">Today at {new Date().toLocaleTimeString()}</div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    className="text-zinc-400"
+                    onClick={() => {
+                      setSelectedAgent(agents[0]);
+                      setSelectedMeeting(3);
+                    }}
+                  >
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      <Image src="/zoomAgent.png" alt="Zoom" width={24} height={24} />
+                      <Image src="/slidesAgent.png" alt="Slides" width={24} height={24} />
+                    </div>
+                    <div>
+                      <div className="text-white font-medium">Meeting 4</div>
+                      <div className="text-zinc-500">Today at {new Date().toLocaleTimeString()}</div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    className="text-zinc-400"
+                    onClick={() => {
+                      setSelectedAgent(agents[0]);
+                      setSelectedMeeting(4);
+                    }}
+                  >
+                    <ArrowRight className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
             <div className="space-y-4">
               <h3 className="text-xl text-white font-bold">Seamlessly perform tasks between apps directly</h3>
               <div className="space-y-4">
@@ -1077,39 +1183,6 @@ export default function Dashboard() {
                     onClick={() => {}}
                   >
                     Connect
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-xl text-white font-bold">Automate tasks by setting a schedule</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
-                  <div className="flex-1 text-white">Auto-reply to common support questions during off-hours</div>
-                  <Button variant="ghost" className="text-zinc-400">
-                    <ArrowRight className="h-5 w-5" />
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
-                  <div className="flex-1 text-white">Convert weekly standup meetings into task assignments</div>
-                  <Button variant="ghost" className="text-zinc-400">
-                    <ArrowRight className="h-5 w-5" />
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
-                  <div className="flex-1 text-white">Schedule team travel from calendar events</div>
-                  <Button variant="ghost" className="text-zinc-400">
-                    <ArrowRight className="h-5 w-5" />
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between bg-zinc-800 p-4 rounded-xl border border-zinc-700">
-                  <div className="flex-1 text-white">Generate daily meeting summary presentations</div>
-                  <Button variant="ghost" className="text-zinc-400">
-                    <ArrowRight className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
