@@ -8,6 +8,13 @@ import { LineShadowText } from "@/components/magicui/line-shadow-text";
 import { FloatingNav } from "@/components/ui/floating-navbar";
 import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const workflowCards = [
   {
@@ -45,6 +52,20 @@ const workflowCards = [
 ];
 
 export default function Home() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === "kendrick") {
+      setIsDialogOpen(false);
+      window.location.href = "/dashboard";
+    } else {
+      setError("Incorrect password");
+    }
+  };
+
   const navItems = [
     {
       name: "Home",
@@ -126,7 +147,7 @@ export default function Home() {
           <ShinyButton
             text="Get started"
             className="items-center space-x-2.5 shadow-[0_13px_22px_rgba(0,0,0,0.10)] drop-shadow-[0_-9px_22px_rgba(255,255,255,0.87)] relative z-10"
-            href="/dashboard"
+            onClick={() => setIsDialogOpen(true)}
           />
         </div>
 
@@ -166,6 +187,30 @@ export default function Home() {
           Transform meetings into actionable tasks in <span className="text-white">seconds</span>, not hours.
         </p>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="bg-[#111111] border-zinc-800 w-full max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">Enter Password</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-[#1a1a1a] text-white border border-zinc-800 rounded-lg p-2"
+              placeholder="Enter password"
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <button
+              type="submit"
+              className="w-full bg-white text-black rounded-lg p-2 hover:bg-zinc-200 transition-colors"
+            >
+              Submit
+            </button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Footer */}
       <footer className="fixed bottom-0 w-full p-4 flex justify-end gap-4 text-sm text-zinc-500">

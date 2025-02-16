@@ -30,7 +30,8 @@ interface ShinyButtonProps {
   text: string;
   className?: string;
   isBlue?: boolean;
-  href: string;
+  href?: string;
+  onClick?: () => void;
 }
 
 const ShinyButton = ({
@@ -38,6 +39,7 @@ const ShinyButton = ({
   className,
   isBlue = false,
   href,
+  onClick,
 }: ShinyButtonProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -53,11 +55,15 @@ const ShinyButton = ({
   }, []);
 
   const handleClick = () => {
-    if (isMobile) {
-      setIsTouched(true);
-      setTimeout(() => {
-        window.location.href = href;
-      }, 200);
+    if (onClick) {
+      onClick();
+    } else if (href) {
+      if (isMobile) {
+        setIsTouched(true);
+        setTimeout(() => {
+          window.location.href = href;
+        }, 200);
+      }
     }
   };
 
@@ -77,7 +83,7 @@ const ShinyButton = ({
 
   return (
     <motion.a
-      href={isMobile ? undefined : href}
+      href={isMobile || onClick ? undefined : href}
       {...animationProps}
       className={cn(
         "group relative inline-block rounded-2xl px-6 py-5 font-bold backdrop-blur-xl transition-[box-shadow] duration-300 ease-in-out hover:shadow",
