@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { Plus, Zap, Link2, X, ArrowRight } from 'lucide-react';
@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTrigger,
   DialogClose,
+  DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import {
@@ -280,6 +281,7 @@ const NewAgentDialog = ({
         {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[1080px] p-0">
+      <DialogTitle className="sr-only">Create New Agent</DialogTitle>
         <div className="flex gap-6 h-[500px]">
           {/* Left side - Templates */}
           <div className="flex-1 space-y-4 p-6">
@@ -484,6 +486,19 @@ export default function Dashboard() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [activeTab, setActiveTab] = useState("chat");
+  const [currentTime, setCurrentTime] = useState<string>("");
+
+  useEffect(() => {
+    // Set initial time
+    setCurrentTime(new Date().toLocaleTimeString());
+    
+    // Optionally update time every minute
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -728,8 +743,7 @@ export default function Dashboard() {
                         <Image src="/agentIcon.png" alt="Chat" width={20} height={20} />
                         <div>
                           <div className="text-zinc-400">Untitled meeting</div>
-                          <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
-                        </div>
+                          <span className="text-sm text-zinc-500">Today at {currentTime}</span>                        </div>
                       </div>
                     </button>
                   </div>
@@ -744,7 +758,7 @@ export default function Dashboard() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium">{selectedAgent.name}</span>
-                            <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
+                            <span className="text-sm text-zinc-500">Today at {currentTime}</span>
                           </div>
                           <p className="text-zinc-400">
                             Hi, I&apos;m looking forward to working together! To get started, you can ask me questions about live data, or have me take action in one of your apps. If you have actions you want me to run on a regular basis, create a behavior.
