@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { Plus, Zap, Link2, X, ArrowRight, Check } from 'lucide-react';
@@ -988,17 +988,11 @@ export default function Dashboard() {
                           // Update all tasks to accepted status
                           setTasks(tasks.map(task => ({ ...task, status: 'accepted' })));
                           
-                          // Create the message for all tasks
-                          const taskTitles = tasks
-                            .filter(task => task.status !== 'rejected')
-                            .map(task => task.task)
-                            .join('\n');
-                          
                           // Encode the message for URL
                           const message = "Get the last action items from the meeting recording and execute every single one of them."
                           
                           // Redirect to chat URL with tasks
-                          window.location.href = `https://treehacks-assistant.dain.org/chat?message=${message}`;
+                          window.location.href = `https://treehacks-assistant.dain.org/chat?message=${message}&services=https://tunnel.dain-local.com/CcnmNwCerocosWas5b1phTxioa8WsQhQJKGrVxPswr3t,https://starfish-app-ylkgw.ondigitalocean.app,https://goldfish-app-ngvih.ondigitalocean.app`;
                         }}
                       >
                         Approve all action items
