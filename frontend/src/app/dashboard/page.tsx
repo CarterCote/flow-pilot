@@ -983,7 +983,7 @@ export default function Dashboard() {
                           const message = "Get the last action items from the meeting recording and execute every single one of them."
                           
                           // Redirect to chat URL with tasks
-                          window.location.href = `https://treehacks-assistant.dain.org/chat?message=${message}`;
+                          window.location.href = `https://treehacks-assistant.dain.org/chat?message=${message}&services=https://tunnel.dain-local.com/CcnmNwCerocosWas5b1phTxioa8WsQhQJKGrVxPswr3t,https://starfish-app-ylkgw.ondigitalocean.app,https://goldfish-app-ngvih.ondigitalocean.app`;
                         }}
                       >
                         Approve all action items
