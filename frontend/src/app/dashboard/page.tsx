@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { Plus, Zap, Link2, X, ArrowRight, Check } from 'lucide-react';
@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogTrigger,
   DialogClose,
-  DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import {
@@ -280,7 +279,6 @@ const NewAgentDialog = ({
         {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[1080px] p-0">
-      <DialogTitle className="sr-only">Create New Agent</DialogTitle>
         <div className="flex gap-6 h-[500px]">
           {/* Left side - Templates */}
           <div className="flex-1 space-y-4 p-6">
@@ -499,6 +497,41 @@ export default function Dashboard() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [activeTab, setActiveTab] = useState("chat");
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  // Replace the static tasks array with state
+  const [tasks, setTasks] = useState<Task[]>([
+    {
+      id: '1',
+      task: "Discuss with team to finalize configuration details for the local model and its transcription capabilities",
+      tool: "notion",
+      metadata: {
+        transcript: "[8:57:58 PM] stop and then starts recording\n[8:58:04 PM]  right and you\"re saying that it doesn\"t make sense because we don\"t want it to record as soon as you start start the meeting\n[8:58:08 PM]  I care\n[8:58:13 PM]  I\"m thinking about how to replace it\n[8:58:28 PM]  cuz we don\"t need to host this on on a URL this is not supposed to be hosted this is a zoom application\n[8:58:34 PM]  and then we cannot confuse about his dad\n[8:58:43 PM]  don\"t you want to have like some sort of like trigger to start these in a meeting either through Blaine or either runtime yourself\n[8:58:51 PM]  I mean when you start a meeting you\"re probably going to leave for the meeting now and as soon as you join everything will start\n[8:58:55 PM]  well I\"m so confused\n[8:59:03 PM]  no I mean that\"s that\"s like something that should be done\n[8:59:10 PM]  like what promise you to give you the idea of getting another endpoint\n[8:59:25 PM] ? cuz\n[8:59:32 PM]  even if your ass is zoom guy the Zumba I will tell you that there is no way for you to like actually post\n[8:59:38 PM]  this online cuz it\"s a you know this is a local model\n[8:59:47 PM]  serving your transcriptions right yeah so if you do put it online then there will be no way for them to actually start transcribing us as well as it is right now\n[8:59:55 PM]  yeah but I don\"t know I still don\"t follow\n[9:00:10 PM]  I do I do have a buck here though\n"
+      },
+      status: 'pending'
+    },
+    {
+      id: '2',
+      task: "Set up local hosting for the meeting on port 9202",
+      tool: "notion",
+      metadata: {
+        transcript: "[9:05:15 PM] looks nothing like Zoom right\n[9:05:20 PM]  this also means that you\"re not no one else is able to join this meeting as well\n[9:05:23 PM]  it\"s just one person it\"s a one way\n[9:05:29 PM]  so yeah this is like the only way that we can host the zoo\n[9:05:50 PM]  no no it\"s bro ignore that ignore that\n[9:06:00 PM]  like that that\"s like for the action items but I was like wanting to like join the meeting from the phone app and then from there to combine like summarize the meeting\n[9:06:08 PM]  you can do that what you can do is you run this locally on your thing and then you just prompt local hosting on 9202\n[9:06:10 PM]  yeah\n[9:06:12 PM]  I\"ll get that set up for you afterwards\n[9:06:18 PM]  okay this is the problem do you see this\n"
+      },
+      status: 'pending'
+    },
+    {
+      id: '3',
+      task: "Set up local hosting on port 9202 for the meeting application",
+      tool: "notion",
+      metadata: {
+        transcript: "[9:05:15 PM] looks nothing like Zoom right\n[9:05:20 PM]  this also means that you\"re not no one else is able to join this meeting as well\n[9:05:23 PM]  it\"s just one person it\"s a one way\n[9:05:29 PM]  so yeah this is like the only way that we can host the zoo\n[9:05:50 PM]  no no it\"s bro ignore that ignore that\n[9:06:00 PM]  like that that\"s like for the action items but I was like wanting to like join the meeting from the phone app and then from there to combine like summarize the meeting\n[9:06:08 PM]  you can do that what you can do is you run this locally on your thing and then you just prompt local hosting on 9202\n[9:06:10 PM]  yeah\n[9:06:12 PM]  I\"ll get that set up for you afterwards\n[9:06:18 PM]  okay this is the problem do you see this\n"
+      },
+      status: 'pending'
+    }
+  ]);
+
+  // Filter out rejected tasks and show all others
+  const visibleTasks = tasks.filter(task => task.status !== 'rejected');
 
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -725,7 +758,8 @@ export default function Dashboard() {
                         <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
                         <div>
                           <div className="text-zinc-400">Untitled meeting</div>
-                          <span className="text-sm text-zinc-500">Today at {currentTime}</span>                        </div>
+                          <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
+                        </div>
                       </div>
                     </button>
                   </div>
@@ -738,9 +772,8 @@ export default function Dashboard() {
                       <div key={task.id} className="flex items-start gap-4 mt-4 p-4 bg-zinc-800 rounded-xl">
 
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium">{selectedAgent.name}</span>
-                            <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="font-medium text-white">{task.task}</span>
                           </div>
                           <div className="text-sm text-zinc-400">
                             From transcript:
@@ -809,15 +842,28 @@ export default function Dashboard() {
                   <div className="border-t border-zinc-700 p-4">
                     <div className="max-w-3xl mx-auto">
                       <div className="flex gap-2">
-                        <Button variant="outline" className="bg-zinc-600 text-white border-none">
-                          Join meeting
-                        </Button>
-                        <Button variant="outline" className="bg-zinc-600 text-white border-none">
-                          Summarize meeting
-                        </Button>
-                        <Button variant="outline" className="bg-zinc-600 text-white border-none">
-                          Approve all action items
-                        </Button>
+                      <Button 
+  variant="outline" 
+  className="bg-zinc-600 text-white border-none"
+  onClick={() => {
+    // Update all tasks to accepted status
+    setTasks(tasks.map(task => ({ ...task, status: 'accepted' })));
+    
+    // Create the message for all tasks
+    const taskTitles = tasks
+      .filter(task => task.status !== 'rejected')
+      .map(task => task.task)
+      .join('\n');
+    
+    // Encode the message for URL
+    const message = "Get the last action items from the meeting recording and execute every single one of them."
+    
+    // Redirect to chat URL with tasks
+    window.location.href = `https://treehacks-assistant.dain.org/chat?message=${message}`;
+  }}
+>
+  Approve all action items
+</Button>
                       </div>
                     </div>
                   </div>
