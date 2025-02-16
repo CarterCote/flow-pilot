@@ -30,7 +30,7 @@ export type Task = {
   user_id: string;
   title: string;
   tool: string;
-  transcript: any;
+  transcript: Record<string, unknown>; 
   approve: boolean;
   created_at: string;
   updated_at: string;

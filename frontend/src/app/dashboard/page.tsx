@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Zap, Link2, X, ArrowRight } from 'lucide-react';
+import { Plus, Zap, Link2, X, ArrowRight, Check } from 'lucide-react';
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,7 +17,6 @@ import {
   TabsContent,
 } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { setupUserTasks } from '@/lib/task-utils';
 
 const TEMPLATES = {
   'support': {
@@ -202,7 +201,7 @@ const NewAgentDialog = ({
             <Button variant="outline">Skip</Button>
             <DialogClose asChild>
               <Button 
-                variant="outline" 
+                className="bg-black text-white" 
                 onClick={() => handleCreateAgent(template.title, template.icon)}
               >
                 Create
@@ -478,12 +477,61 @@ const IntegrationsDialog = ({ trigger }: { trigger: React.ReactNode }) => {
   );
 };
 
+// Add these types
+type TaskMetadata = {
+  transcript: string;
+};
+
+// Update the Task type to include an id and status
+type Task = {
+  id: string;
+  task: string;
+  tool: string;
+  metadata: TaskMetadata;
+  status: 'pending' | 'accepted' | 'rejected';
+};
+
 export default function Dashboard() {
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const [isDragging, setIsDragging] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [activeTab, setActiveTab] = useState("chat");
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  // Replace the static tasks array with state
+  const [tasks, setTasks] = useState<Task[]>([
+    {
+      id: '1',
+      task: "Discuss with team to finalize configuration details for the local model and its transcription capabilities",
+      tool: "notion",
+      metadata: {
+        transcript: "[8:57:58 PM] stop and then starts recording\n[8:58:04 PM]  right and you\"re saying that it doesn\"t make sense because we don\"t want it to record as soon as you start start the meeting\n[8:58:08 PM]  I care\n[8:58:13 PM]  I\"m thinking about how to replace it\n[8:58:28 PM]  cuz we don\"t need to host this on on a URL this is not supposed to be hosted this is a zoom application\n[8:58:34 PM]  and then we cannot confuse about his dad\n[8:58:43 PM]  don\"t you want to have like some sort of like trigger to start these in a meeting either through Blaine or either runtime yourself\n[8:58:51 PM]  I mean when you start a meeting you\"re probably going to leave for the meeting now and as soon as you join everything will start\n[8:58:55 PM]  well I\"m so confused\n[8:59:03 PM]  no I mean that\"s that\"s like something that should be done\n[8:59:10 PM]  like what promise you to give you the idea of getting another endpoint\n[8:59:25 PM] ? cuz\n[8:59:32 PM]  even if your ass is zoom guy the Zumba I will tell you that there is no way for you to like actually post\n[8:59:38 PM]  this online cuz it\"s a you know this is a local model\n[8:59:47 PM]  serving your transcriptions right yeah so if you do put it online then there will be no way for them to actually start transcribing us as well as it is right now\n[8:59:55 PM]  yeah but I don\"t know I still don\"t follow\n[9:00:10 PM]  I do I do have a buck here though\n"
+      },
+      status: 'pending'
+    },
+    {
+      id: '2',
+      task: "Set up local hosting for the meeting on port 9202",
+      tool: "notion",
+      metadata: {
+        transcript: "[9:05:15 PM] looks nothing like Zoom right\n[9:05:20 PM]  this also means that you\"re not no one else is able to join this meeting as well\n[9:05:23 PM]  it\"s just one person it\"s a one way\n[9:05:29 PM]  so yeah this is like the only way that we can host the zoo\n[9:05:50 PM]  no no it\"s bro ignore that ignore that\n[9:06:00 PM]  like that that\"s like for the action items but I was like wanting to like join the meeting from the phone app and then from there to combine like summarize the meeting\n[9:06:08 PM]  you can do that what you can do is you run this locally on your thing and then you just prompt local hosting on 9202\n[9:06:10 PM]  yeah\n[9:06:12 PM]  I\"ll get that set up for you afterwards\n[9:06:18 PM]  okay this is the problem do you see this\n"
+      },
+      status: 'pending'
+    },
+    {
+      id: '3',
+      task: "Set up local hosting on port 9202 for the meeting application",
+      tool: "notion",
+      metadata: {
+        transcript: "[9:05:15 PM] looks nothing like Zoom right\n[9:05:20 PM]  this also means that you\"re not no one else is able to join this meeting as well\n[9:05:23 PM]  it\"s just one person it\"s a one way\n[9:05:29 PM]  so yeah this is like the only way that we can host the zoo\n[9:05:50 PM]  no no it\"s bro ignore that ignore that\n[9:06:00 PM]  like that that\"s like for the action items but I was like wanting to like join the meeting from the phone app and then from there to combine like summarize the meeting\n[9:06:08 PM]  you can do that what you can do is you run this locally on your thing and then you just prompt local hosting on 9202\n[9:06:10 PM]  yeah\n[9:06:12 PM]  I\"ll get that set up for you afterwards\n[9:06:18 PM]  okay this is the problem do you see this\n"
+      },
+      status: 'pending'
+    }
+  ]);
+
+  // Filter out rejected tasks and show all others
+  const visibleTasks = tasks.filter(task => task.status !== 'rejected');
 
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -572,40 +620,6 @@ export default function Dashboard() {
     );
   };
 
-  const handleZoomConnect = async () => {
-    try {
-      const response = await fetch('/api/auth/zoom');
-      const { authUrl } = await response.json();
-      const userId = 'current-user-id';
-      await setupUserTasks(userId);
-      window.location.href = authUrl;
-    } catch (error) {
-      console.error('Failed to initiate Zoom authentication:', error);
-    }
-  };
-
-  const handleNotionConnect = async () => {
-    try {
-      const response = await fetch('/api/auth/notion');
-      const { authUrl } = await response.json();
-      const userId = 'current-user-id';
-      window.location.href = authUrl;
-    } catch (error) {
-      console.error('Failed to initiate Notion authentication:', error);
-    }
-  };
-
-  const handleGoogleConnect = async () => {
-    try {
-      const response = await fetch('/api/auth/google');
-      const { authUrl } = await response.json();
-      const userId = 'current-user-id';
-      window.location.href = authUrl;
-    } catch (error) {
-      console.error('Failed to initiate Google authentication:', error);
-    }
-  };
-
   return (
     <div className="flex h-screen bg-zinc-900 text-white">
       {/* Left Sidebar */}
@@ -677,7 +691,7 @@ export default function Dashboard() {
 
       {/* Main content area */}
       {selectedAgent ? (
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col h-screen overflow-hidden">
           {/* Header */}
           <div className="border-b border-zinc-800 bg-zinc-900">
             <div className="flex items-center justify-between px-4 py-4">
@@ -704,7 +718,7 @@ export default function Dashboard() {
                     setActiveTab('chat');
                   }}
                 >
-                  Chat
+                  View meetings
                 </Button>
               </div>
             </div>
@@ -712,20 +726,36 @@ export default function Dashboard() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-            <TabsContent value="chat" className="flex-1 flex data-[state=active]:flex">
-              {/* Existing chat view */}
+            <TabsContent value="chat" className="flex-1 flex data-[state=active]:flex m-0">
               <div className="flex flex-1">
                 {/* Chat list sidebar */}
-                <div className="w-[300px] border-r border-zinc-800 ">
-                  <div className="p-4">
+                <div className="w-[300px] border-r border-zinc-800">
+                  <div className="p-4 space-y-4">
                     <div className="flex items-center gap-2 p-2 border border-zinc-700 rounded-xl">
                       <Plus size={16} className="text-zinc-400" />
                       <span className="text-zinc-400">New</span>
                     </div>
-                    
                     <button className="mt-4 w-full">
                       <div className="flex items-center gap-2 p-2 bg-zinc-800 rounded-xl">
-                        <Image src="/agentIcon.png" alt="Chat" width={20} height={20} />
+                        <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
+                        <div>
+                          <div className="text-zinc-400">Untitled meeting</div>
+                          <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
+                        </div>
+                      </div>
+                    </button>
+                    <button className="mt-4 w-full">
+                      <div className="flex items-center gap-2 p-2 bg-zinc-900 rounded-xl hover:bg-zinc-800 transition-all duration-500">
+                        <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
+                        <div>
+                          <div className="text-zinc-400">Untitled meeting</div>
+                          <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
+                        </div>
+                      </div>
+                    </button>
+                    <button className="w-full">
+                      <div className="flex items-center gap-2 p-2 bg-zinc-900 rounded-xl hover:bg-zinc-800 transition-all duration-500">
+                        <Image src="/zoomAgent.png" alt="Chat" width={20} height={20} />
                         <div>
                           <div className="text-zinc-400">Untitled meeting</div>
                           <div className="text-sm text-zinc-400">Today at {new Date().toLocaleTimeString()}</div>
@@ -736,22 +766,77 @@ export default function Dashboard() {
                 </div>
 
                 {/* Chat interface */}
-                <div className="flex-1 flex flex-col">
-                  <div className="flex-1 p-4">
-                    <div className="max-w-3xl mx-auto">
-                      <div className="flex items-start gap-4 mt-4">
-                        <Image src={selectedAgent.icon} alt={selectedAgent.name} width={32} height={32} />
+                <div className="flex-1 flex flex-col h-full overflow-hidden">
+                  <div className="h-[calc(100vh-155px)] p-4 overflow-y-auto">
+                    {visibleTasks.map((task) => (
+                      <div key={task.id} className="flex items-start gap-4 mt-4 p-4 bg-zinc-800 rounded-xl">
+
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium">{selectedAgent.name}</span>
-                            <span className="text-sm text-zinc-500">Today at {new Date().toLocaleTimeString()}</span>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="font-medium text-white">{task.task}</span>
                           </div>
-                          <p className="text-zinc-400">
-                            Hi, I&apos;m looking forward to working together! To get started, you can ask me questions about live data, or have me take action in one of your apps. If you have actions you want me to run on a regular basis, create a behavior.
-                          </p>
+                          <div className="text-sm text-zinc-400">
+                            From transcript:
+                            <div className="mt-2 p-3 bg-zinc-900 rounded-lg">
+                              <div className="relative">
+                                <div className={`line-clamp-4 ${expanded === task.id ? 'line-clamp-none' : ''} pr-8`}>
+                                  {task.metadata.transcript}
+                                </div>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="absolute bottom-0 right-0 text-zinc-400 hover:text-white hover:bg-white/20"
+                                  onClick={() => setExpanded(expanded === task.id ? null : task.id)}
+                                >
+                                  <Image 
+                                    src="/expand.png"
+                                    alt="Expand"
+                                    width={16}
+                                    height={16}
+                                    className={`transform transition-transform ${expanded === task.id ? 'rotate-90' : ''}`}
+                                  />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-row space-x-4">
+                          <Button 
+                            variant="ghost" 
+                            className={`shrink-0 bg-green-500/10 text-green-400 
+                              hover:bg-green-500/20 hover:text-green-300
+                              ${task.status === 'accepted' ? 'text-green-500' : ''}`}
+                            onClick={() => {
+                              setTasks(tasks.map(t => 
+                                t.id === task.id 
+                                  ? { ...t, status: 'accepted' }
+                                  : t
+                              ));
+                            }}
+                          >
+                            <Check className="h-4 w-4 mr-2" />
+                            {task.status === 'accepted' ? 'Accepted' : 'Accept'}
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            className={`shrink-0 bg-red-500/10 text-red-400
+                              hover:bg-red-500/20 hover:text-red-300
+                              ${task.status === 'rejected' ? 'text-red-500' : ''}
+                              ${task.status === 'accepted' ? 'opacity-20' : ''}`}
+                            onClick={() => {
+                              setTasks(tasks.map(t => 
+                                t.id === task.id 
+                                  ? { ...t, status: 'rejected' }
+                                  : t
+                              ));
+                            }}
+                          >
+                            <X className="h-4 w-4 mr-2" />
+                            {task.status === 'rejected' ? 'Rejected' : 'Reject'}
+                          </Button>
                         </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
 
                   <div className="border-t border-zinc-700 p-4">
@@ -767,13 +852,6 @@ export default function Dashboard() {
                           Approve all action items
                         </Button>
                       </div>
-                      {/* <div className="mt-4 flex items-center gap-2 p-2 border rounded-xl">
-                        <input
-                          type="text"
-                          placeholder="Message your agent or press '/' for commands"
-                          className="flex-1 bg-transparent border-none focus:outline-none text-zinc-900"
-                        />
-                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -835,7 +913,7 @@ export default function Dashboard() {
                   <Button 
                     variant="default" 
                     className="bg-blue-600 hover:bg-blue-600/80 text-white"
-                    onClick={handleNotionConnect}
+                    onClick={() => {}}
                   >
                     Connect
                   </Button>
@@ -853,7 +931,7 @@ export default function Dashboard() {
                   <Button 
                     variant="default" 
                     className="bg-blue-600 hover:bg-blue-600/80 text-white"
-                    onClick={handleGoogleConnect}
+                    onClick={() => {}}
                   >
                     Connect
                   </Button>
